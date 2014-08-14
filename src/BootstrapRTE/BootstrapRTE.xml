@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="BootstrapRTE.widget.BootstrapRTE" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+	<name>Bootstrap RTE</name>
+	<description>This is a Bootstrap based Rich Text Editor</description>
+	<icon></icon>
+	<properties>
+		<property key="attribute" type="attribute">
+			<caption>Data attribute</caption>
+			<category>Data source</category>
+			<description>Add the attribute the content should be saved to.</description>
+			<attributeTypes>
+				<attributeType name="String"/>
+			</attributeTypes>
+		</property>
+		<property key="boxHeight" type="integer" defaultValue="600">
+			<caption>Input height</caption>
+			<category>Appearance</category>
+			<description>The height of the input field in px.</description>
+		</property>
+		<property key="onchangeMF" type="microflow" required="false">
+   			<caption>Onchange Microflow</caption>
+    		<category>Behavior</category>
+		    <description>Microflow to trigger on change.</description>
+		    <returnType type="Void"/>
+		</property>
+	</properties>
+</widget>
