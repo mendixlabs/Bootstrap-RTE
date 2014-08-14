@@ -1,7 +1,7 @@
 Basic Bootstrap Wysiwyg Editor
 =============
 
-Basic, bootstrap based, rich text editor.
+Basic, bootstrap based, rich text editor widget for Mendix.
 
 ##Description
 This widget is a basic, more simplistic, more style-friendly version of the Simple Rich Text Editor. It has been created specifically for use in MX5 projects. It provides basic text styling functionality such as bold,italic andunderline. 
