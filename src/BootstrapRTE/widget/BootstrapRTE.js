@@ -199,9 +199,9 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 	},
 
 	createPicture : function(type, group) {
-		var button = dojo.create('a', { 'id': 'pictureBtn', 'class' : 'btn'});
+		var button = dojo.create('a', { 'id': 'pictureBtn' + this.id, 'class' : 'btn'});
 		var icon = dojo.create('i', { 'class' : 'icon-' + type.icon });
-		var pictureInput = dojo.create('input', {'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn', 'data-role' : 'magic-overlay'});
+		var pictureInput = dojo.create('input', {'id' : 'pictureBtnInput' + this.id , 'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn' + this.id, 'data-role' : 'magic-overlay'});
 		dojo.place(icon, button);
 		dojo.place(button, group, 'last');
 		dojo.place(pictureInput, group, 'last');
@@ -212,15 +212,20 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 			'opacity'	: 0,
 			'position'	: 'absolute',
 			'top'		: '0.199997px', 
-			'left'		: '-0.0000366211px',
-			'width'		: '39px', 
-			'height'	: '30px'
+			'left'		: '-0.0000366211px'
 		});
 	},
 
 	addEditor : function(){
 		dojo.place(this._toolbarNode, this.domNode);
 		dojo.place(this._inputfield, this.domNode, 'last');
+		//fix the image button action (set height and width of overlay input) 
+		var  imgBtnPos = dojo.position(dojo.byId("pictureBtn" + this.id));
+		//for some dark and unknown reason dojo.style doesn't work, so we'll use jquery.
+		$('#pictureBtnInput' + this.id).css({
+			'width' : imgBtnPos.w, 
+			'height' : imgBtnPos.h
+		});
 		//force the MX-styles.
 		dojo.addClass(this._inputfield, 'form-control mx-textarea-input mx-textarea-input-noresize');
 		dojo.style(this._inputfield, {
