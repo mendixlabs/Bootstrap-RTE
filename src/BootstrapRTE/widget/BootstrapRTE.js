@@ -1,13 +1,29 @@
 dojo.require("BootstrapRTE.lib.jquery-183-min");
 dojo.require("BootstrapRTE.lib.bootstrap-wysiwyg");
 dojo.require("BootstrapRTE.lib.external.jquery-hotkeys");
-mxui.dom.addCss(dojo.moduleUrl("BootstrapRTE.lib", "font/css/font-awesome.css"));
+dojo.require("dojo.NodeList-traverse");
+dojo.require("dojo.fx.Toggler");
+mxui.dom.addCss(require.toUrl("BootstrapRTE/lib/font/css/font-awesome.css"));
 
 (function($) {
 
 dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 	inputargs : {
-		attribute : ""
+		attribute : "",
+                boxMinHeight: 100,
+                boxMaxHeight: 600,
+                // toolabar options
+                showToolbarOnlyOnFocus: false,
+                toolbarButtonFont: true,
+                toolbarButtonFontsize: true,
+                toolbarButtonSize: true,
+                toolbarButtonEmphasis: true,
+                toolbarButtonList: true,
+                toolbarButtonDent: true,
+                toolbarButtonJustify: true,
+                toolbarButtonLink: true,
+                toolbarButtonPicture: true,
+                toolbarButtonDoRedo: true
 	},
 
 	//housekeeping
@@ -16,13 +32,49 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 	_bigBox : null,
 	_toolbarNode : null,
 	_handle : null,
+        isToolbarDisplayed: true,
 
 	postCreate : function(){
-		this._inputfield = dojo.create('div', { 'id' : this.id + '_editor' });
-		this.createToolbar();
-		this.addEditor();			
-		this.actLoaded();
+            this._inputfield = dojo.create('div', { 'id' : this.id + '_editor' });
+            this.createToolbar();
+            this.addEditor();			
+            this.actLoaded();
+            if(this.boxMaxHeight < this.boxMinHeight){
+                console.error("Widget configuration error; Bootstrap RTE: Max size is smaler the Min Size");
+            }
+            var self = this;
+            if(this.showToolbarOnlyOnFocus){
+                dojo.style(self._toolbarNode, "display", "none"); //Maybe box is fist in tab order, does this need to be checked?
+                this.isToolbarDisplayed = false;
+                this.toggler = new dojo.fx.Toggler({
+                    node: self._toolbarNode,
+                    showFunc: dojo.fx.wipeIn,
+                    hideFunc: dojo.fx.wipeOut
+                  });
+                 var handleFocus = dijit.focus.watch("curNode", function(name, oldValue, newValue){
+                    var inFocus = self.inFocus(self.domNode, newValue);
+                    if (inFocus && ! self.isToolbarDisplayed){                    
+                        self.toggler.show();    
+                        self.isToolbarDisplayed = true;
+                    } else if(!inFocus && self.isToolbarDisplayed) {
+                        self.toggler.hide();
+                        self.isToolbarDisplayed = false;
+                    }
+                });
+            }
 	},
+
+        inFocus :function(node, newValue){
+            if(newValue){
+                var nodes = dojo.query(node).children().andSelf();;
+                for(var i=0; i < nodes.length; i++){
+                    if(nodes[i] === newValue)
+                        return true;
+                }
+            } else {
+                return false;
+            }
+        },
 
 	update : function(obj, callback){
 		if (this._handle){
@@ -49,8 +101,10 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 		var self = this;
 		//Freedom to create our own toolbar. With freedom comes responsibility.
 		//Below we define all the buttons that we'll render.
-		var toolbarButtons = [
-			[
+		var toolbarButtons = [];
+                
+		if(this.toolbarButtonFont){
+                    toolbarButtons.push([
 				{toggle: 'font', icon: 'font',
 				fonts: [
 				{name : 'Arial'},
@@ -59,9 +113,10 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 				{name : 'Lucida Grande'},
 				{name : 'Times New Roman'},
 				{name : 'Verdana'}
-				]}
-			],
-			[
+                            ]}]);
+                }
+                if(this.toolbarButtonFontsize){
+                    toolbarButtons.push([
 				{toggle: 'fontsize', icon: 'text-height', 
 				sizes: [
 				{type: 'h1', name: 'Header 1'}, 
@@ -69,37 +124,53 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 				{type: 'h3', name: 'Header 3'},
 				{type: 'p', name:'Normal'}
 				]}
-			],
-			[
+			]);
+                }
+                if(this.toolbarButtonEmphasis){
+                    toolbarButtons.push([
 				{type: 'bold', 	icon: 'bold'}, 
 				{type: 'italic', icon: 'italic'}, 
 				{type: 'underline', icon: 'underline'}, 
 				{type: 'strikethrough', icon: 'strikethrough'}
-			],
-			[
-				{type: 'insertunorderedlist', icon: 'list-ul'}, 
-				{type: 'insertorderedlist', icon: 'list-ol'}, 
-				{type: 'outdent', icon: 'indent-left'}, 
-				{type: 'indent', icon: 'indent-right'}
-			], 
-			[
+			]);
+                }
+                if(this.toolbarButtonList || this.toolbarButtonDent){
+                    var group = [];
+                    if(this.toolbarButtonList){
+                        group.push({type: 'insertunorderedlist', icon: 'list-ul'});
+                        group.push({type: 'insertorderedlist', icon: 'list-ol'});
+                    }
+                    if(this.toolbarButtonDent){
+                        group.push({type: 'outdent', icon: 'indent-left'});
+                        group.push({type: 'indent', icon: 'indent-right'});
+                    }
+                    toolbarButtons.push(group);
+                }
+                if(this.toolbarButtonJustify){
+                    toolbarButtons.push([
 				{type: 'justifyleft', icon: 'align-left'},
 				{type: 'justifycenter', icon: 'align-center'},
 				{type: 'justifyright', icon: 'align-right'},
 				{type: 'justifyfull', icon: 'align-justify'}
-			], 
-			[
+			]);
+                }
+                if(this.toolbarButtonLink){
+                    toolbarButtons.push([
 				{toggle: 'hyperlink', icon: 'link'},
-				{type: 'unlink', icon: 'cut'}
-			],
-			[
+				{type: 'unlink', icon: 'unlink'}
+			]);
+                }
+                if(this.toolbarButtonPicture){
+                    toolbarButtons.push([
 				{toggle: 'picture', icon: 'picture'}
-			],
-			[
+			]);
+                }
+                if(this.toolbarButtonDoRedo){
+                    toolbarButtons.push([
 				{type: 'undo', icon: 'undo'},
 				{type: 'redo', icon: 'repeat'}
-			]
-		];
+			]);
+                }
 		$.each(toolbarButtons, function(index, list){
 			self.createGroupedTools(list);
 		});
@@ -149,6 +220,9 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 			dojo.place(item, ul);
 			dojo.style(fontTag, {
 				'fontFamily' : font.name
+			});
+                        self.connect(fontTag, 'onclick', function(e){
+				$('#' + self.id + ' .dropdown-menu').hide();
 			});
 		});
 		dojo.place(button, group, 'last');
@@ -220,16 +294,21 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 		dojo.place(this._toolbarNode, this.domNode);
 		dojo.place(this._inputfield, this.domNode, 'last');
 		//fix the image button action (set height and width of overlay input) 
-		var  imgBtnPos = dojo.position(dojo.byId("pictureBtn" + this.id));
-		//for some dark and unknown reason dojo.style doesn't work, so we'll use jquery.
-		$('#pictureBtnInput' + this.id).css({
-			'width' : imgBtnPos.w, 
-			'height' : imgBtnPos.h
-		});
+                var imgBtn = dojo.byId("pictureBtn" + this.id);
+                if(imgBtn){
+                    var  imgBtnPos = dojo.position(imgBtn);
+                    //for some dark and unknown reason dojo.style doesn't work, so we'll use jquery.
+                    $('#pictureBtnInput' + this.id).css({
+                            'width' : imgBtnPos.w, 
+                            'height' : imgBtnPos.h
+                    });
+                }
+                
 		//force the MX-styles.
 		dojo.addClass(this._inputfield, 'form-control mx-textarea-input mx-textarea-input-noresize');
 		dojo.style(this._inputfield, {
-			'height' : this.boxHeight + 'px'
+			'min-height' : this.boxMinHeight + 'px',
+			'max-height' : this.boxMaxHeight + 'px'
 		});
 
 		$('#' + this.id + '_editor').wysiwyg({ toolbarSelector: '[data-role=editor-toolbar-'+ this.id +']'} );

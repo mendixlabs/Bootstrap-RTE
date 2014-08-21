@@ -1,0 +1,6 @@
+test/deployment/
+test/.classpath
+test/.project
+test/BootstrapRTETest.mpr.lock
+test/test.launch
+test/javasource/
