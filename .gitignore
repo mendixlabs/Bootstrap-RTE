@@ -4,3 +4,5 @@ test/.project
 test/BootstrapRTETest.mpr.lock
 test/test.launch
 test/javasource/
+.idea/
+src/widget.mws
