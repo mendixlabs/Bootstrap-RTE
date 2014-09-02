@@ -7,7 +7,7 @@ mxui.dom.addCss(require.toUrl("BootstrapRTE/lib/font/css/font-awesome.css"));
 
 (function($) {
 
-dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
+dojo.declare("BootstrapRTE.widget.BootstrapRTE", [mxui.widget._WidgetBase,  mxui.mixin._ValidationHelper], {
 
     /**
      * Variables
@@ -17,6 +17,7 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
 	_bigBox : null,
 	_toolbarNode : null,
 	_handle : null,
+	_validationHandle: null,
     _isToolbarDisplayed: true,
 
     /**
@@ -26,6 +27,10 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
         if (this._handle){
             mx.data.unsubscribe(this._handle);
         }
+		if (this._validationHandle){
+            mx.data.unsubscribe(this._validationHandle);
+        }
+		
         if(obj){
             var self = this;
             this._mxObj = obj;
@@ -38,6 +43,21 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", mxui.widget._WidgetBase, {
                     dojo.html.set(self._inputfield, self._mxObj.get(self.attribute));
                 }
             });
+			
+			this._validationHandle = mx.data.subscribe({
+				guid     : obj.getGuid(),
+				val      : true,
+				callback : dojo.hitch(this, function(validations) {
+					var val = validations[0],
+						msg = val.getReasonByAttribute(this.attribute);                            
+					if (msg) {
+						this.addError(msg);
+						val.removeAttribute(this.attribute);
+					}
+
+				})
+			});
+			
         }
         callback && callback();
     },
