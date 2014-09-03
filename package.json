@@ -1,0 +1,25 @@
+{
+  "name": "Bootstrap-RTE",
+  "version": "5.2.2",
+  "description": "Basic Bootstrap Wysiwyg Editor\r =============",
+  "main": "Gruntfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mendix/Bootstrap-RTE.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/mendix/Bootstrap-RTE/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-compress": "~0.11.0"
+  }
+}
