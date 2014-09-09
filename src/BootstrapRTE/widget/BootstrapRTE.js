@@ -419,10 +419,7 @@ dojo.declare("BootstrapRTE.widget.BootstrapRTE", [mxui.widget._WidgetBase,  mxui
         });
 
         dojo.connect(this._inputfield, 'blur', function(e){
-			//use the last element that was clicked to find out if it was a toolbar click.
-			if(!self.target || dojo.query('.toolbar_' + self.id).children() == 0){
-				self._fetchContent();
-			}
+			self._fetchContent();
 		});
 
 		//Ok, I'm just going to stick to jquery here for traversing the dom. Much easier.
