@@ -12,12 +12,11 @@
 				<attributeType name="String"/>
 			</attributeTypes>
 		</property>
-                <property key="showToolbarOnlyOnFocus" type="boolean" defaultValue="false">
+        <property key="showToolbarOnlyOnFocus" type="boolean" defaultValue="false">
 			<caption>Show bar on focus</caption>
 			<category>Appearance</category>
 			<description>Hide toolbar until the text area is focused</description>
 		</property>
-                
 		<property key="boxMinHeight" type="integer" defaultValue="100">
 			<caption>Input min height</caption>
 			<category>Appearance</category>

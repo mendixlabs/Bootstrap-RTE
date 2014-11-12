@@ -20,6 +20,7 @@ Not all buttons are available yet.
 Mendix 5.x Environment
 jQuery (added to the package)
 bootstrap-wysiwyg plugin (added to the package)
+Works on Chrome and Firefox
 
 ##Configuration
 
