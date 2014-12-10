@@ -4,3 +4,7 @@
  * Author: Gerhard Richard Edens
  * Description: Bootstrap WYSIWYG editor ported to new standard.
  */
+.form-control.mx-bootstrap-textarea {
+    height: 100%;
+    min-height: 100px;
+}

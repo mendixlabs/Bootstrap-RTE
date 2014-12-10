@@ -535,7 +535,7 @@
                 // Variables
                 var button = mxui.dom.create('a', { 'id': 'pictureBtn' + this.id, 'class' : 'btn'}),
                     icon = mxui.dom.create('i', { 'class' : 'icon-' + type.icon }),
-                    pictureInput = mxui.dom.create('input', {'id' : 'pictureBtnInput' + this.id , 'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn' + this.id, 'data-role' : 'magic-overlay', 'style' : 'width: 35px;' });
+                    pictureInput = mxui.dom.create('input', {'id' : 'pictureBtnInput' + this.id , 'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn' + this.id, 'data-role' : 'magic-overlay', 'style' : 'width: 35px; height: 35px;' });
 
                 domConstruct.place(icon, button);
                 domConstruct.place(button, group, 'last');
@@ -576,7 +576,7 @@
                 }
 
                 //force the MX-styles.
-                domClass.add(this._inputfield, 'form-control mx-textarea-input mx-textarea-input-noresize');
+                domClass.add(this._inputfield, 'form-control mx-bootstrap-textarea mx-textarea-input mx-textarea-input-noresize');
                 domStyle.set(this._inputfield, {
                     'min-height' : this.boxMinHeight + 'px',
                     'max-height' : this.boxMaxHeight + 'px'
