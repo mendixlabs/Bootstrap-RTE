@@ -535,7 +535,7 @@
                 // Variables
                 var button = mxui.dom.create('a', { 'id': 'pictureBtn' + this.id, 'class' : 'btn'}),
                     icon = mxui.dom.create('i', { 'class' : 'icon-' + type.icon }),
-                    pictureInput = mxui.dom.create('input', {'id' : 'pictureBtnInput' + this.id , 'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn' + this.id, 'data-role' : 'magic-overlay'});
+                    pictureInput = mxui.dom.create('input', {'id' : 'pictureBtnInput' + this.id , 'type' : 'file', 'data-edit' : 'insertImage', 'data-target' : '#pictureBtn' + this.id, 'data-role' : 'magic-overlay', 'style' : 'width: 35px;' });
 
                 domConstruct.place(icon, button);
                 domConstruct.place(button, group, 'last');
@@ -592,13 +592,13 @@
                     target = null,
                     $ = this.$;
 
-                this.connect(document, 'onmousedown', function(e) {
+                this.connect(dom.byId(this.id), 'onmousedown', lang.hitch(this, function(e) {
                     // The latest element clicked
                     self.target = domQuery(e.target);
-                });
+                }));
 
                 // when 'target == null' on blur, we know it was not caused by a click
-                this.connect(document, 'onmouseup', function(e) {
+                this.connect(dom.byId(this.id), 'onmouseup', function(e) {
                     // The latest element clicked
                     self.target = null;
                 });

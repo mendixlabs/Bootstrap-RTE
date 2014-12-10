@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <clsMXWidgetSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <WidgetName>BootstrapRTE</WidgetName>
-  <SourcePath>C:\Projects\Tickets - Projects\204044 - Incident Bootstrap RTE appstore module broken in IE 11\BootstrapRTE\src\</SourcePath>
-  <DestinationPath>C:\Projects\Tickets - Projects\204044 - Incident Bootstrap RTE appstore module broken in IE 11\BootstrapRTE\test\</DestinationPath>
+  <SourcePath>C:\Projects\GitHub\Bootstrap-RTE\src</SourcePath>
+  <DestinationPath>C:\Projects\GitHub\Bootstrap-RTE\test</DestinationPath>
   <Monitor>false</Monitor>
 </clsMXWidgetSettings>
