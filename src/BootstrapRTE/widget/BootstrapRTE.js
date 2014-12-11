@@ -70,7 +70,7 @@
             postCreate: function () {
 
                 // postCreate
-                console.log('BootstrapRTE - postCreate');
+                // console.log('BootstrapRTE - postCreate');
 
                 // Load CSS ... automaticly from ui directory
 
@@ -97,7 +97,7 @@
             startup: function () {
                 
                 // postCreate
-                console.log('BootstrapRTE - startup');
+                // console.log('BootstrapRTE - startup');
             },
 
             /**
@@ -106,7 +106,7 @@
 
             update: function (obj, callback) {
                 // startup
-                console.log('BootstrapRTE - update');
+                // console.log('BootstrapRTE - update');
 
                 // Release handle on previous object, if any.
                 if (this._handle){
@@ -176,7 +176,7 @@
                 //TODO, what will happen if the widget is resumed (set visible).
             },
 
-            unintialize: function () {
+            uninitialize: function () {
                 //TODO, clean up only events
                 if (this._handle) {
                     mx.data.unsubscribe(this._handle);
@@ -220,7 +220,7 @@
                 this._createToolbar();
                 this._addEditor();
                 
-                console.log('BootstrapRTE - createChildNodes events');
+                // console.log('BootstrapRTE - createChildNodes events');
             },
 
             // Attach events to newly created nodes.
@@ -230,7 +230,7 @@
                     handleFocus = null,
                     inFocus = null;
 
-                console.log('BootstrapRTE - setup events');
+                // console.log('BootstrapRTE - setup events');
 
                 // Display toolbar or not on focus
                 if(this.showToolbarOnlyOnFocus){
