@@ -1,5 +1,5 @@
 /*jslint white: true nomen: true plusplus: true */
-/*global mx, mxui, mendix, dojo, require, console, define, module */
+/*global mx, mxui, mendix, require, console, define, module */
 /**
 
 	BootstrapRTE
@@ -24,7 +24,7 @@
     // test
     require([
 
-        'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'dijit/focus',
+        'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'mxui/mixin/_ValidationHelper', 'dijit/focus',
         'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text', 'dojo/html', 'dojo/_base/event',
         'dojo/fx', 'dojo/fx/Toggler', 'dojo/_base/array',
         'BootstrapRTE/widget/lib/jquery', 'BootstrapRTE/widget/lib/bootstrap_wysiwyg', 'BootstrapRTE/widget/lib/external/jquery_hotkeys',
@@ -32,13 +32,13 @@
         /* Imports that do not need a placeholder */
         'dojo/NodeList-traverse'
 
-    ], function (_WidgetBase, _Widget, _Templated, focusUtil, 
+    ], function (_WidgetBase, _Widget, _Templated, _ValidationHelper, focusUtil, 
                   domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, on, lang, declare, text, domHtml, domEvent,
                   coreFx, Toggler, dojoArray,
                   _jQuery, _bootstrap_wysiwyg, _jquery_hotkeys) {
 
         // Declare widget.
-        return declare('BootstrapRTE.widget.BootstrapRTE', [ _WidgetBase, _Widget, _Templated, _jQuery, _bootstrap_wysiwyg, _jquery_hotkeys ], {
+        return declare('BootstrapRTE.widget.BootstrapRTE', [ _WidgetBase, _Widget, _Templated, _ValidationHelper, _jQuery, _bootstrap_wysiwyg, _jquery_hotkeys ], {
 
             /**
              * Internal variables.
@@ -157,27 +157,15 @@
                 }
             },
 
-            /**
-             * How the widget re-acts from actions invoked by the Mendix App.
-             */
-            suspend: function () {
-                //TODO, what will happen if the widget is suspended (not visible).
-            },
-
-            resume: function () {
-                //TODO, what will happen if the widget is resumed (set visible).
-            },
-
             enable: function () {
-                //TODO, what will happen if the widget is suspended (not visible).
+
             },
 
             disable: function () {
-                //TODO, what will happen if the widget is resumed (set visible).
+
             },
 
             uninitialize: function () {
-                //TODO, clean up only events
                 if (this._handle) {
                     mx.data.unsubscribe(this._handle);
                 }
