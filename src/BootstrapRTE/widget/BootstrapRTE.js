@@ -24,16 +24,16 @@
     // test
     require([
 
-        'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'mxui/mixin/_ValidationHelper', 'dijit/focus',
-        'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text', 'dojo/html', 'dojo/_base/event',
+        'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin', 'mxui/mixin/_ValidationHelper', 'dijit/focus',
+        'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/on', 'dojo/_base/lang', 'dojo/html', 'dojo/_base/event',
         'dojo/fx', 'dojo/fx/Toggler', 'dojo/_base/array',
         'BootstrapRTE/widget/lib/jquery', 'BootstrapRTE/widget/lib/bootstrap_wysiwyg', 'BootstrapRTE/widget/lib/external/jquery_hotkeys',
         
         /* Imports that do not need a placeholder */
         'dojo/NodeList-traverse'
 
-    ], function (_WidgetBase, _Widget, _Templated, _ValidationHelper, focusUtil, 
-                  domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, on, lang, declare, text, domHtml, domEvent,
+    ], function (declare, _WidgetBase, _Widget, _Templated, _ValidationHelper, focusUtil, 
+                  domMx, dom, domQuery, domGeom, domClass, domStyle, domConstruct, on, lang, domHtml, domEvent,
                   coreFx, Toggler, dojoArray,
                   _jQuery, _bootstrap_wysiwyg, _jquery_hotkeys) {
 
