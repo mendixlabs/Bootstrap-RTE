@@ -1,82 +1,82 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <widget id="BootstrapRTE.widget.BootstrapRTE" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ widget.xsd">
-	<name>Bootstrap RTE</name>
-	<description>This is a Bootstrap based Rich Text Editor</description>
-	<icon></icon>
-	<properties>
-		<property key="attribute" type="attribute">
-			<caption>Data attribute</caption>
-			<category>Data source</category>
-			<description>Add the attribute the content should be saved to.</description>
-			<attributeTypes>
-				<attributeType name="String"/>
-			</attributeTypes>
-		</property>
+    <name>Bootstrap RTE</name>
+    <description>This is a Bootstrap based Rich Text Editor</description>
+    <icon></icon>
+    <properties>
+        <property key="attribute" type="attribute">
+            <caption>Data attribute</caption>
+            <category>Data source</category>
+            <description>Add the attribute the content should be saved to.</description>
+            <attributeTypes>
+                <attributeType name="String" />
+            </attributeTypes>
+        </property>
         <property key="showToolbarOnlyOnFocus" type="boolean" defaultValue="false">
-			<caption>Show bar on focus</caption>
-			<category>Appearance</category>
-			<description>Hide toolbar until the text area is focused</description>
-		</property>
-		<property key="boxMinHeight" type="integer" defaultValue="100">
-			<caption>Input min height</caption>
-			<category>Appearance</category>
-			<description>The min height of the input field in px. size will grow till max height</description>
-		</property>
-                <property key="boxMaxHeight" type="integer" defaultValue="600">
-			<caption>Input max height</caption>
-			<category>Appearance</category>
-			<description>The max height of the input field in px.(Make sure your theme does not set the height!)</description>
-		</property>
-		<property key="onchangeMF" type="microflow" required="false">
-   			<caption>Onchange Microflow</caption>
-    		<category>Behavior</category>
-		    <description>Microflow to trigger on change.</description>
-		    <returnType type="Void"/>
-		</property>
-                <property key="toolbarButtonFont" type="boolean" required="true" defaultValue="true">
-			<caption>Font</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonFontsize" type="boolean" required="true" defaultValue="true">
-			<caption>Fontsize</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonEmphasis" type="boolean" required="true" defaultValue="true">
-			<caption>Emphasis</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonList" type="boolean" required="true" defaultValue="true">
-			<caption>List</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonDent" type="boolean" required="true" defaultValue="true">
-			<caption>Dent</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonJustify" type="boolean" required="true" defaultValue="true">
-			<caption>Justify</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonLink" type="boolean" required="true" defaultValue="true">
-			<caption>Link</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonPicture" type="boolean" required="true" defaultValue="true">
-			<caption>Picture</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>
-                <property key="toolbarButtonDoRedo" type="boolean" required="true" defaultValue="true">
-			<caption>(re)do</caption>
-			<category>Toolbar</category>
-			<description/>
-		</property>                
-	</properties>
+            <caption>Show bar on focus</caption>
+            <category>Appearance</category>
+            <description>Hide toolbar until the text area is focused</description>
+        </property>
+        <property key="boxMinHeight" type="integer" defaultValue="100">
+            <caption>Input min height</caption>
+            <category>Appearance</category>
+            <description>The min height of the input field in px. size will grow till max height</description>
+        </property>
+        <property key="boxMaxHeight" type="integer" defaultValue="600">
+            <caption>Input max height</caption>
+            <category>Appearance</category>
+            <description>The max height of the input field in px.(Make sure your theme does not set the height!)</description>
+        </property>
+        <property key="onchangeMF" type="microflow" required="false">
+            <caption>Onchange Microflow</caption>
+            <category>Behavior</category>
+            <description>Microflow to trigger on change.</description>
+            <returnType type="Void" />
+        </property>
+        <property key="toolbarButtonFont" type="boolean" required="true" defaultValue="true">
+            <caption>Font</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonFontsize" type="boolean" required="true" defaultValue="true">
+            <caption>Fontsize</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonEmphasis" type="boolean" required="true" defaultValue="true">
+            <caption>Emphasis</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonList" type="boolean" required="true" defaultValue="true">
+            <caption>List</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonDent" type="boolean" required="true" defaultValue="true">
+            <caption>Dent</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonJustify" type="boolean" required="true" defaultValue="true">
+            <caption>Justify</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonLink" type="boolean" required="true" defaultValue="true">
+            <caption>Link</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonPicture" type="boolean" required="true" defaultValue="true">
+            <caption>Picture</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+        <property key="toolbarButtonDoRedo" type="boolean" required="true" defaultValue="true">
+            <caption>(re)do</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
+    </properties>
 </widget>
