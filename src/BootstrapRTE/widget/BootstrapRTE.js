@@ -180,8 +180,8 @@ require({
                     hideFunc: coreFx.wipeOut
                 });
 
-                handleFocus = focusUtil.watch("curNode", function (name, oldValue, newValue) {
-                    inFocus = self._inFocus(self.domNode, newValue);
+                handleFocus = $(this.domNode).on('click', function (event) {
+                    inFocus = self._inFocus(self.domNode, event.target);
                     if (inFocus && !self._isToolbarDisplayed) {
                         self._toggler.show();
                         self._isToolbarDisplayed = true;
@@ -237,11 +237,10 @@ require({
         _inFocus: function (node, newValue) {
             var nodes = null,
                 i = 0;
-
             if (newValue) {
                 nodes = $(node).children().andSelf();
                 for (i = 0; i < nodes.length; i++) {
-                    if (nodes[i] === newValue) {
+                    if (nodes[i] === $(newValue).closest(nodes[i])[0]) {
                         return true;
                     }
                 }
@@ -295,7 +294,15 @@ require({
             }
 
             if (this.toolbarButtonLink) {
-                domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_url.html')), this._toolbarNode);
+                var template = domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_url.html')), 
+                    urlfield = domQuery('input', template)[0];
+                domConstruct.place(template, this._toolbarNode);
+                
+                this.connect(urlfield, 'click', function(e){
+                    var target = e.currentTarget || e.target;
+                    target.focus();
+                    domEvent.stop(e);
+                });
             }
 
             if (this.toolbarButtonPicture) {
@@ -326,8 +333,6 @@ require({
             var self = this,
                 target = null;
 
-            
-
             this.connect(this._inputfield, 'blur', lang.hitch(this, function (e) {
                 this._fetchContent();
             }));
@@ -336,6 +341,7 @@ require({
             $('#' + this.id + ' .dropdown-toggle').on("click", function (e) {
                 $(this).parent().find('div').toggle();
                 $(this).parent().find('ul').toggle();
+                $(this).parent().find('input').focus();
             });
 
             //Check if we have to hide the dropdown box.
