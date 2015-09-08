@@ -61,6 +61,7 @@ require({
         toolbarButtonLink: true,
         toolbarButtonPicture: true,
         toolbarButtonDoRedo: true,
+		toolbarButtonHtml: true,
 
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
@@ -287,11 +288,16 @@ require({
                 domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_list.html')), this._toolbarNode);
             } else if (this.toolbarButtonDent) {
                 domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_dent.html')), this._toolbarNode);
-            }
+            } 
+			
 
             if (this.toolbarButtonJustify) {
                 domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_justify.html')), this._toolbarNode);
             }
+			
+			if (this.toolbarButtonHtml) {
+                domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_html.html')), this._toolbarNode);
+            } 
 
             if (this.toolbarButtonLink) {
                 var template = domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_url.html')), 
