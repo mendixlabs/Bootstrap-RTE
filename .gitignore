@@ -8,3 +8,4 @@ test/javasource/
 src/widget.mws
 node_modules/
 *DS_Store*
+*.bak

@@ -20,10 +20,7 @@ var path = require("path"),
 var MODELER_PATH = null;
 var MODELER_ARGS = "/file:{path}";
 
-// In case you have a different path to the test project (currently in ./test/Test.mpr) point TEST_PATH to the Test-project (full path). Otherwise, leave at null
-var TEST_PATH = null;
-// Use this example if you want to point it to a different subfolder and specific Test project Name:
-// var TEST_PATH = path.join(shelljs.pwd(), "./<custom folder>/<Custom Test Project Name>.mpr");
+var TEST_PATH = path.join(shelljs.pwd(), "./test/BootstrapRTETest.mpr");
 
 module.exports = function (grunt) {
     var pkg = grunt.file.readJSON("package.json");
