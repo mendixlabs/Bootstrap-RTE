@@ -1,25 +1,35 @@
 {
-  "name": "Bootstrap-RTE",
-  "version": "5.2.2",
-  "description": "Basic Bootstrap Wysiwyg Editor\r =============",
-  "main": "Gruntfile.js",
-  "directories": {
-    "test": "test"
+  "name": "BootstrapRTE",
+  "version": "3.0.0",
+  "description": "Basic Bootstrap Wysiwyg Editor",
+  "private": true,
+  "dependencies": {
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "devDependencies": {
+    "grunt": "0.4.5",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-compress": "^0.14.0",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-newer": "^1.1.1",
+    "node-base64-image": "^0.1.0",
+    "shelljs": "^0.5.3",
+    "xml2js": "^0.4.15",
+    "semver": "^5.1.0",
+    "node-mendix-modeler-path": "https://github.com/JelteMX/node-mendix-modeler-path/archive/v1.0.0.tar.gz"
+  },
+  "engines": {
+    "node": ">=0.12.0"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/mendix/Bootstrap-RTE.git"
+    "url": "git://github/com/mendix/Bootstrap-RTE.git"
   },
-  "author": "",
-  "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/mendix/Bootstrap-RTE/issues"
   },
-  "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-compress": "~0.11.0"
+  "license": "Apache License, Version 2.0, January 2004",
+  "scripts": {
+    "test": "grunt test"
   }
 }
