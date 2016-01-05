@@ -54,7 +54,7 @@ require([
 
             // Check settings.
             if (this.boxMaxHeight < this.boxMinHeight) {
-                console.error("Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
+                logger.error(this.id + "Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
             }
 
             // Setup widgets
@@ -68,15 +68,10 @@ require([
 
         },
 
-        startup: function () {
-            logger.debug(this.id + '.startup');
-        },
-
         update: function (obj, callback) {
             logger.debug(this.id + '.update');
 
             if (obj) {
-                var self = this;
                 this._mxObj = obj;
 
                 // set the content on update
@@ -85,7 +80,7 @@ require([
 
             } else {
                 // Sorry no data no show!
-                console.log('BootstrapRTE  - update - We did not get any context object!');
+                logger.warn(this.id + '.update - We did not get any context object!');
             }
 
             // Execute callback.
@@ -102,7 +97,6 @@ require([
             logger.debug(this.id + '._setupWidget');
             // To be able to just alter one variable in the future we set an internal variable with the domNode that this widget uses.
             this._wgtNode = this.domNode;
-
         },
 
         // Create child nodes.
@@ -212,7 +206,6 @@ require([
             logger.debug(this.id + '._loadData');
             // Set the html of the inputfield after update!
             domHtml.set(this._inputfield, this._mxObj.get(this.attribute));
-
         },
 
         /**
@@ -266,6 +259,10 @@ require([
 
             if (this.toolbarButtonPicture) {
                 domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_picture.html')), this._toolbarNode);
+            }
+
+            if (this.toolbarButtonDoRedo) {
+                domConstruct.place(domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_unredo.html')), this._toolbarNode);
             }
         },
 
