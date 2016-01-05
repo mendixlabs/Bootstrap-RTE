@@ -4,14 +4,14 @@
 
 require([
     'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
-    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text',
+    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text', 'dojo/html',
     'dijit/focus', 'dojo/fx', 'dojo/fx/Toggler', 'dojo/html', 'dojo/_base/event',
 
     'BootstrapRTE/lib/jquery',
     'dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html',
     'BootstrapRTE/lib/bootstrap-wysiwyg',
     'BootstrapRTE/lib/external/jquery.hotkeys'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, dojoHtml, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery, widgetTemplate) {
     'use strict';
 
     var $ = _jQuery.noConflict(true);
@@ -167,15 +167,7 @@ require([
                 validationHandle = mx.data.subscribe({
                     guid: this._mxObj.getGuid(),
                     val: true,
-                    callback: lang.hitch(this, function (validations) {
-                        var val = validations[0],
-                            msg = val.getReasonByAttribute(this.attribute);
-                        if (msg) {
-                            this.addError(msg);
-                            val.removeAttribute(this.attribute);
-                        }
-
-                    })
+                    callback: lang.hitch(this, this._handleValidation)
                 });
 
             this._handles.push(handle);
@@ -318,6 +310,10 @@ require([
 
             this._mxObj.set(this.attribute, text);
 
+            if (_valueChanged) {
+                this._clearValidations();
+            }
+
             if (_valueChanged && this.onchangeMF !== "") {
                 this._execMf(this.onchangeMF, this._mxObj);
             }
@@ -368,6 +364,49 @@ require([
             }
 
             return value;
+        },
+
+        // Handle validations.
+        _handleValidation: function(validations) {
+            logger.debug(this.id + "._handleValidation");
+            this._clearValidations();
+
+            var validation = validations[0],
+                message = validation.getReasonByAttribute(this.attribute);
+
+            if (message) {
+                this._addValidation(message);
+                validation.removeAttribute(this.attribute);
+            }
+        },
+
+        // Clear validations.
+        _clearValidations: function() {
+            logger.debug(this.id + "._clearValidations");
+            domClass.toggle(this.domNode, "has-error", false);
+            domConstruct.destroy(this._alertDiv);
+            this._alertDiv = null;
+        },
+
+        // Show an error message.
+        _showError: function(message) {
+            logger.debug(this.id + "._showError");
+            if (this._alertDiv !== null) {
+                dojoHtml.set(this._alertDiv, message);
+                return true;
+            }
+            this._alertDiv = domConstruct.create("div", {
+                "class": "alert alert-danger",
+                "innerHTML": message
+            });
+            domConstruct.place(this._alertDiv, this.domNode);
+            domClass.toggle(this.domNode, "has-error", true);
+        },
+
+        // Add a validation.
+        _addValidation: function(message) {
+            logger.debug(this.id + "._addValidation");
+            this._showError(message);
         }
     });
 });
