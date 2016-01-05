@@ -1,7 +1,21 @@
 /* http://github.com/mindmup/bootstrap-wysiwyg */
 /*global jQuery, $, FileReader*/
 /*jslint browser:true*/
-(function ($) {
+
+(function(root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['BootstrapRTE/lib/jquery'], factory);
+    } else if (typeof exports === 'object') {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(require('jquery'));
+    } else {
+        // Browser globals (root is window)
+        root.lightbox = factory(root.jQuery);
+    }
+}(this, function($) {
 	'use strict';
 	var readFileIntoDataUrl = function (fileInfo) {
 		var loader = $.Deferred(),
@@ -197,4 +211,4 @@
 		dragAndDropImages: true,
 		fileUploadError: function (reason, detail) { console.log("File upload error", reason, detail); }
 	};
-}($));
+}));

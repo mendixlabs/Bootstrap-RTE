@@ -2,28 +2,19 @@
 /*global mx, define, require, browser, devel, console, dojo */
 /*mendix */
 
-require({
-    packages: [{
-            name: 'jquery',
-            location: '../../widgets/BootstrapRTE/lib',
-            main: 'jquery'
-        },
-        {
-            name: 'bootstrap-rte',
-            location: '../../widgets/BootstrapRTE/lib',
-            main: 'bootstrap-wysiwyg'
-        },
-        {
-            name: 'jquery-hotkeys',
-            location: '../../widgets/BootstrapRTE/lib/external',
-            main: 'jquery.hotkeys'
-               }]
-}, [
+require([
     'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
     'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text',
-    'dijit/focus', 'dojo/fx', 'dojo/fx/Toggler', 'dojo/html', 'dojo/_base/event', 'jquery', 'dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html', 'bootstrap-rte', 'jquery-hotkeys'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, focusUtil, coreFx, Toggler, domHtml, domEvent, $, widgetTemplate) {
+    'dijit/focus', 'dojo/fx', 'dojo/fx/Toggler', 'dojo/html', 'dojo/_base/event',
+
+    'BootstrapRTE/lib/jquery',
+    'dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html',
+    'BootstrapRTE/lib/bootstrap-wysiwyg',
+    'BootstrapRTE/lib/external/jquery.hotkeys'
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery, widgetTemplate) {
     'use strict';
+
+    var $ = _jQuery.noConflict(true);
 
     // Declare widget's prototype.
     return declare('BootstrapRTE.widget.BootstrapRTE', [_WidgetBase, _TemplatedMixin], {
@@ -331,20 +322,29 @@ require({
             this._mxObj.set(this.attribute, text);
 
             if (_valueChanged && this.onchangeMF !== "") {
-                this._execMf(this.onchangeMF, this._mxObj.getGuid());
+                this._execMf(this.onchangeMF, this._mxObj);
             }
 
         },
 
-        _execMf: function (mf, guid) {
-            logger.debug(this.id + '._execMf');
-            mx.data.action({
-                params: {
+        _execMF: function (obj, mf) {
+            logger.debug(this.id + '._execMF', mf);
+            if (mf) {
+                var params = {
                     applyto: "selection",
                     actionname: mf,
-                    guids: [guid]
+                    guids: []
+                };
+                if (obj) {
+                    params.guids = [obj.getGuid()];
                 }
-            });
+                mx.data.action({
+                    store: {
+                        caller: this.mxform
+                    },
+                    params: params
+                }, this);
+            }
         },
 
         _testTarget: function (e) {
