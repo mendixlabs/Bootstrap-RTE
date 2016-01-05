@@ -1,23 +1,7 @@
 /*jslint white:true, nomen: true, plusplus: true */
 /*global mx, define, require, browser, devel, console, dojo */
 /*mendix */
-/*
-    BootstrapRTE
-    ========================
 
-    @file      : BootstrapRTE.js
-    @version   : 2.0
-    @author    : Pauline Oudeman, Gerhard Richard Edens
-    @date      : Mon, 02 Mar 2015 11:49:10 GMT
-    @copyright : 
-    @license   : 
-
-    Documentation
-    ========================
-    Describe your widget here.
-*/
-
-// Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 require({
     packages: [{
             name: 'jquery',
@@ -65,14 +49,17 @@ require({
         // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
         _handles: null,
         _contextObj: null,
+
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
+            // Uncomment next line to start debugging
+            logger.level(logger.DEBUG);
             this._handles = [];
         },
 
         // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
-            console.log(this.id + ' - postCreate');
+            logger.debug(this.id + '.postCreate');
 
             // Check settings.
             if (this.boxMaxHeight < this.boxMinHeight) {
@@ -90,20 +77,12 @@ require({
 
         },
 
-        // DOJO.WidgetBase -> Startup is fired after the properties of the widget are set.
         startup: function () {
-
-            // postCreate
-            console.log(this.id + ' - startup');
+            logger.debug(this.id + '.startup');
         },
 
-        /**
-         * What to do when data is loaded?
-         */
-
         update: function (obj, callback) {
-            // startup
-            console.log(this.id + ' - update');
+            logger.debug(this.id + '.update');
 
             if (obj) {
                 var self = this;
@@ -124,25 +103,12 @@ require({
             }
         },
 
-        enable: function () {
-
-        },
-
-        disable: function () {
-
-        },
-
-        uninitialize: function () {
-
-        },
-
-
         /**
          * Extra setup widget methods.
          * ======================
          */
         _setupWidget: function () {
-
+            logger.debug(this.id + '._setupWidget');
             // To be able to just alter one variable in the future we set an internal variable with the domNode that this widget uses.
             this._wgtNode = this.domNode;
 
@@ -150,7 +116,7 @@ require({
 
         // Create child nodes.
         _createChildNodes: function () {
-
+            logger.debug(this.id + '._createChildNodes');
             // Create input field.
             this._inputfield = dom.create('div', {
                 'id': this.id + '_editor'
@@ -165,10 +131,11 @@ require({
 
         // Attach events to newly created nodes.
         _setupEvents: function () {
-            var self = this, 
+            logger.debug(this.id + '._setupEvents');
+            var self = this,
                 handleFocus = null,
                 inFocus = null;
-            
+
             if (this.showToolbarOnlyOnFocus) {
                 domStyle.set(this._toolbarNode, "display", "none"); //Maybe box is first in tab order, does this need to be checked?
 
@@ -195,11 +162,11 @@ require({
         },
 
         _resetSubscriptions: function () {
+            logger.debug(this.id + '._resetSubscriptions');
             if (this._handles.length > 0) {
                 dojoArray.forEach(this._handles, function (handle) {
                     mx.data.unsubscribe(handle);
                 });
-
                 this._handles = null;
             }
             if (!this._handles) {
@@ -235,6 +202,7 @@ require({
          * ======================
          */
         _inFocus: function (node, newValue) {
+            logger.debug(this.id + '._inFocus');
             var nodes = null,
                 i = 0;
             if (newValue) {
@@ -250,7 +218,7 @@ require({
         },
 
         _loadData: function () {
-
+            logger.debug(this.id + '._loadData');
             // Set the html of the inputfield after update!
             domHtml.set(this._inputfield, this._mxObj.get(this.attribute));
 
@@ -261,7 +229,7 @@ require({
          */
 
         _createToolbar: function () {
-
+            logger.debug(this.id + '._createToolbar');
             //Create toolbar node.
             this._toolbarNode = dom.create('div', {
                 'class': 'btn-toolbar toolbar_' + this.id,
@@ -294,10 +262,10 @@ require({
             }
 
             if (this.toolbarButtonLink) {
-                var template = domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_url.html')), 
+                var template = domConstruct.toDom(dojo.cache('BootstrapRTE.widget', 'template/BootstrapRTE_toolbar_url.html')),
                     urlfield = domQuery('input', template)[0];
                 domConstruct.place(template, this._toolbarNode);
-                
+
                 this.connect(urlfield, 'click', function(e){
                     var target = e.currentTarget || e.target;
                     target.focus();
@@ -310,9 +278,8 @@ require({
             }
         },
 
-
-
         _addEditor: function () {
+            logger.debug(this.id + '._addEditor');
             domConstruct.place(this._toolbarNode, this.domNode);
             domConstruct.place(this._inputfield, this.domNode, 'last');
 
@@ -330,6 +297,7 @@ require({
         },
 
         _addListeners: function () {
+            logger.debug(this.id + '._addListeners');
             var self = this,
                 target = null;
 
@@ -356,6 +324,7 @@ require({
         },
 
         _fetchContent: function () {
+            logger.debug(this.id + '._fetchContent');
             var text = $(this._inputfield).html(),
                 _valueChanged = (this._mxObj.get(this.attribute) !== text);
 
@@ -368,6 +337,7 @@ require({
         },
 
         _execMf: function (mf, guid) {
+            logger.debug(this.id + '._execMf');
             mx.data.action({
                 params: {
                     applyto: "selection",
@@ -378,6 +348,7 @@ require({
         },
 
         _testTarget: function (e) {
+            logger.debug(this.id + '._testTarget');
             //See if we clicked the same button
             var isButton = false,
                 isContainer = {},
