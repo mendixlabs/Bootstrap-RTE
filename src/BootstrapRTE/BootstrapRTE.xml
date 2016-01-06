@@ -78,5 +78,10 @@
             <category>Toolbar</category>
             <description/>
         </property>
+        <property key="toolbarButtonHtml" type="boolean" required="true" defaultValue="true">
+            <caption>HTML</caption>
+            <category>Toolbar</category>
+            <description/>
+        </property>
     </properties>
 </widget>
