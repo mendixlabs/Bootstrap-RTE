@@ -67,6 +67,8 @@ require([
             // Setup events
             this._setupEvents();
 
+            console.log(this.id + ' Readonly: ' + this.readOnly);
+
         },
 
         update: function (obj, callback) {
@@ -278,6 +280,12 @@ require([
             $('#' + this.id + '_editor').wysiwyg({
                 toolbarSelector: '[data-role=editor-toolbar-' + this.id + ']'
             });
+
+            if (this.readOnly) {
+                $('#' + this.id + '_editor').attr("contenteditable", "false");
+                $('.toolbar_' + this.id).find("a").addClass("disabled");
+            }
+
             this._addListeners();
         },
 
