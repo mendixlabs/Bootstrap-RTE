@@ -29,9 +29,37 @@ require([
 
     "BootstrapRTE/lib/jquery",
     "dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html",
+
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_basic.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_dent.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_font.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_fontsize.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_html.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_justify.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_list_and_dent.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_list.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_picture.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_unredo.html",
+    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_url.html",
+
     "BootstrapRTE/lib/bootstrap-wysiwyg",
     "BootstrapRTE/lib/external/jquery.hotkeys"
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domAttr, domConstruct, dojoArray, lang, text, dojoHtml, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin,
+    dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domAttr, domConstruct, dojoArray,
+    lang, text, dojoHtml, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery,
+    widgetTemplate,
+    templateToolbarBasic,
+    templateToolbarDent,
+    templateToolbarFont,
+    templateToolbarFontSize,
+    templateToolbarHtml,
+    templateToolbarJustify,
+    templateToolbarListAndDent,
+    templateToolbarList,
+    templateToolbarPicture,
+    templateToolbarUnredo,
+    templateToolbarUrl
+) {
     "use strict";
 
     var $ = _jQuery.noConflict(true);
@@ -249,30 +277,30 @@ require([
 
             //Load templates
             if (this.toolbarButtonFont) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_font.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarFont), this._toolbarNode);
             }
 
             if (this.toolbarButtonFontsize) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_fontsize.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarFontSize), this._toolbarNode);
             }
 
             if (this.toolbarButtonEmphasis) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_basic.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarBasic), this._toolbarNode);
             }
             if (this.toolbarButtonList && this.toolbarButtonDent) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_list_and_dent.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarListAndDent), this._toolbarNode);
             } else if (this.toolbarButtonList) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_list.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarList), this._toolbarNode);
             } else if (this.toolbarButtonDent) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_dent.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarDent), this._toolbarNode);
             }
 
             if (this.toolbarButtonJustify) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_justify.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarJustify), this._toolbarNode);
             }
 
             if (this.toolbarButtonLink) {
-                var template = domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_url.html")),
+                var template = domConstruct.toDom(templateToolbarUrl),
                     urlfield = domQuery("input", template)[0];
                 domConstruct.place(template, this._toolbarNode);
 
@@ -284,15 +312,15 @@ require([
             }
 
             if (this.toolbarButtonPicture) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_picture.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarPicture), this._toolbarNode);
             }
 
             if (this.toolbarButtonHtml) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_html.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarHtml), this._toolbarNode);
             }
 
             if (this.toolbarButtonDoRedo) {
-                domConstruct.place(domConstruct.toDom(dojo.cache("BootstrapRTE.widget", "template/BootstrapRTE_toolbar_unredo.html")), this._toolbarNode);
+                domConstruct.place(domConstruct.toDom(templateToolbarUnredo), this._toolbarNode);
             }
         },
 
