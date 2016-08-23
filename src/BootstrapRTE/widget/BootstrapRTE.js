@@ -115,10 +115,14 @@ require([
             // Setup widgets
             //this._setupWidget();
         },
+        
+       _strReadOnly: function () {
+            return this._contextObj.isReadonlyAttr && this._contextObj.isReadonlyAttr(this.attribute);
+        },
 
         update: function (obj, callback) {
 
-            if (this.readOnly || this.get("disabled") || this.readonly) {
+            if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
                 this._readOnly = true;
             }
 
