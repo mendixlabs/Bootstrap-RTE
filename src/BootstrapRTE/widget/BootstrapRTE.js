@@ -1,8 +1,4 @@
-/*jslint white:true, nomen: true, plusplus: true */
-/*global mx, define, require, browser, devel, console, dojo */
-/*mendix */
-
-require([
+define([
     "dojo/_base/declare",
     "mxui/widget/_WidgetBase",
     "dijit/_TemplatedMixin",
@@ -92,14 +88,10 @@ require([
         _readOnly: false,
         _setup: false,
 
-        // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function () {
-            // Uncomment next line to start debugging
-            logger.level(logger.DEBUG);
             this._handles = [];
         },
 
-        // dijit._WidgetBase.postCreate is called after constructing the widget. Implement to do extra setup work.
         postCreate: function () {
             logger.debug(this.id + ".postCreate");
 
@@ -111,9 +103,6 @@ require([
             if (this.boxMaxHeight < this.boxMinHeight) {
                 logger.error(this.id + "Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
             }
-
-            // Setup widgets
-            //this._setupWidget();
         },
 
         update: function (obj, callback) {
@@ -143,10 +132,6 @@ require([
             mendix.lang.nullExec(callback);
         },
 
-        /**
-         * Extra setup widget methods.
-         * ======================
-         */
         _setupWidget: function (callback) {
             logger.debug(this.id + "._setupWidget");
             this._setup = true;
@@ -176,7 +161,6 @@ require([
             this._addEditor();
         },
 
-        // Attach events to newly created nodes.
         _setupEvents: function () {
             logger.debug(this.id + "._setupEvents");
             var self = this,
@@ -236,10 +220,6 @@ require([
             this._handles.push(validationHandle);
         },
 
-        /**
-         * Interaction widget methods.
-         * ======================
-         */
         _inFocus: function (node, newValue) {
             logger.debug(this.id + "._inFocus");
             var nodes = null,
@@ -261,10 +241,6 @@ require([
             // Set the html of the inputfield after update!
             domHtml.set(this._inputfield, this._mxObj.get(this.attribute));
         },
-
-        /**
-         * Custom widget functions
-         */
 
         _createToolbar: function () {
             logger.debug(this.id + "._createToolbar");
@@ -438,7 +414,6 @@ require([
             return value;
         },
 
-        // Handle validations.
         _handleValidation: function(validations) {
             logger.debug(this.id + "._handleValidation");
             this._clearValidations();
@@ -452,7 +427,6 @@ require([
             }
         },
 
-        // Clear validations.
         _clearValidations: function() {
             logger.debug(this.id + "._clearValidations");
             domClass.toggle(this.domNode, "has-error", false);
@@ -460,7 +434,6 @@ require([
             this._alertDiv = null;
         },
 
-        // Show an error message.
         _showError: function(message) {
             logger.debug(this.id + "._showError");
             if (this._alertDiv !== null) {
@@ -482,3 +455,5 @@ require([
         }
     });
 });
+
+require(["BootstrapRTE/widget/BootstrapRTE"]);
