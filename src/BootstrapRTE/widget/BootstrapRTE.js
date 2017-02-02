@@ -13,11 +13,12 @@ define([
     "dojo/dom-attr",
     "dojo/dom-construct",
     "dojo/_base/array",
+    "dojo/on",
+    "dojo/_base/window",
+
     "dojo/_base/lang",
     "dojo/text",
     "dojo/html",
-
-    "dijit/focus",
     "dojo/fx",
     "dojo/fx/Toggler",
     "dojo/html",
@@ -26,35 +27,12 @@ define([
     "BootstrapRTE/lib/jquery",
     "dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html",
 
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_basic.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_dent.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_font.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_fontsize.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_html.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_justify.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_list_and_dent.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_list.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_picture.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_unredo.html",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE_toolbar_url.html",
-
     "BootstrapRTE/lib/bootstrap-wysiwyg",
     "BootstrapRTE/lib/external/jquery.hotkeys"
 ], function (declare, _WidgetBase, _TemplatedMixin,
-    dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domAttr, domConstruct, dojoArray,
-    lang, text, dojoHtml, focusUtil, coreFx, Toggler, domHtml, domEvent, _jQuery,
-    widgetTemplate,
-    templateToolbarBasic,
-    templateToolbarDent,
-    templateToolbarFont,
-    templateToolbarFontSize,
-    templateToolbarHtml,
-    templateToolbarJustify,
-    templateToolbarListAndDent,
-    templateToolbarList,
-    templateToolbarPicture,
-    templateToolbarUnredo,
-    templateToolbarUrl
+    dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domAttr, domConstruct, dojoArray, on, win,
+    lang, text, dojoHtml, coreFx, Toggler, domHtml, domEvent, _jQuery,
+    widgetTemplate
 ) {
     "use strict";
 
@@ -64,6 +42,10 @@ define([
     return declare("BootstrapRTE.widget.BootstrapRTE", [_WidgetBase, _TemplatedMixin], {
         // _TemplatedMixin will create our dom node using this HTML template.
         templateString: widgetTemplate,
+
+        // nodes
+        inputNode: null,
+        toolbarNode: null,
 
         // Parameters configured in the Modeler.
         attribute: "",
@@ -87,6 +69,10 @@ define([
         _contextObj: null,
         _readOnly: false,
         _setup: false,
+        _windowClickHandler: null,
+
+        _toolbarId: "toolbar_",
+        _editorId: "editor_",
 
         constructor: function () {
             this._handles = [];
@@ -98,6 +84,13 @@ define([
             if (this.readOnly || this.get("disabled") || this.readonly) {
                 this._readOnly = true;
             }
+
+            this._toolbarId = "toolbar_" + this.id;
+            this._editorId = "editor_" + this.id;
+
+            domAttr.set(this.toolbarNode, "data-target", "#" + this._editorId);
+            domAttr.set(this.toolbarNode, "id", this._toolbarId);
+            domAttr.set(this.inputNode, "id", this._editorId);
 
             // Check settings.
             if (this.boxMaxHeight < this.boxMinHeight) {
@@ -122,39 +115,31 @@ define([
                 this._mxObj = obj;
 
                 // set the content on update
-                domHtml.set(this._inputfield, this._mxObj.get(this.attribute));
+                domHtml.set(this.inputNode, this._mxObj.get(this.attribute));
                 this._resetSubscriptions();
             } else {
                 // Sorry no data no show!
                 logger.warn(this.id + ".update - We did not get any context object!");
             }
 
-            mendix.lang.nullExec(callback);
+            this._executeCallback(callback, "update");
         },
 
         _setupWidget: function (callback) {
             logger.debug(this.id + "._setupWidget");
             this._setup = true;
-            // To be able to just alter one variable in the future we set an internal variable with the domNode that this widget uses.
-            this._wgtNode = this.domNode;
 
-            domAttr.remove(this.domNode, "focusindex");
+            //domAttr.remove(this.domNode, "focusindex");
 
             this._createChildNodes();
             this._setupEvents();
 
-            mendix.lang.nullExec(callback);
+            this._executeCallback(callback, "_setupWidget");
         },
 
         // Create child nodes.
         _createChildNodes: function () {
             logger.debug(this.id + "._createChildNodes");
-            // Create input field.
-            this._inputfield = dom.create("div", {
-                "id": this.id + "_editor",
-                "tabindex": 0,
-                "focusindex": 0
-            });
 
             // Created toolbar and editor.
             this._createToolbar();
@@ -163,23 +148,20 @@ define([
 
         _setupEvents: function () {
             logger.debug(this.id + "._setupEvents");
-            var self = this,
-                handleFocus = null,
-                inFocus = null;
 
             if (this.showToolbarOnlyOnFocus) {
-                domStyle.set(this._toolbarNode, "display", "none"); //Maybe box is first in tab order, does this need to be checked?
+                domStyle.set(this.toolbarNode, "display", "none"); //Maybe box is first in tab order, does this need to be checked?
 
                 this._isToolbarDisplayed = false;
 
                 this._toggler = new Toggler({
-                    node: self._toolbarNode,
+                    node: this.toolbarNode,
                     showFunc: coreFx.wipeIn,
                     hideFunc: coreFx.wipeOut
                 });
 
-                handleFocus = $(this.domNode).on("click", lang.hitch(this, function (event) {
-                    inFocus = this._inFocus(this.domNode, event.target);
+                this.connect(this.domNode, "click", lang.hitch(this, function (event) {
+                    var inFocus = this._inFocus(this.domNode, event.target);
                     if (inFocus && !this._isToolbarDisplayed) {
                         this._toggler.show();
                         this._isToolbarDisplayed = true;
@@ -189,35 +171,40 @@ define([
                     }
                 }));
 
+                this._windowClickHandler = on(win.doc, "click", lang.hitch(this, function (event) {
+                    var inFocus = this._inFocus(this.domNode, event.target);
+                    if (!inFocus && this._isToolbarDisplayed) {
+                        this._toggler.hide();
+                        this._isToolbarDisplayed = false;
+                    }
+                }));
             }
         },
 
         _resetSubscriptions: function () {
             logger.debug(this.id + "._resetSubscriptions");
-            if (this._handles.length > 0) {
-                dojoArray.forEach(this._handles, function (handle) {
-                    mx.data.unsubscribe(handle);
-                });
-                this._handles = null;
-            }
-            if (!this._handles) {
-                this._handles = [];
-            }
 
-            // fix microflow change calls
-            var handle = mx.data.subscribe({
+            this.unsubscribeAll();
+
+            if (this._mxObj) {
+                this.subscribe({
                     guid: this._mxObj.getGuid(),
                     callback: lang.hitch(this, this._loadData)
-                }),
-                // set the validation handle.
-                validationHandle = mx.data.subscribe({
+                });
+
+                // This doesn't work yet
+                // this.subscribe({
+                //     guid: this._mxObj.getGuid(),
+                //     attr: this.attribute,
+                //     callback: lang.hitch(this, this._loadData)
+                // });
+
+                this.subscribe({
                     guid: this._mxObj.getGuid(),
                     val: true,
                     callback: lang.hitch(this, this._handleValidation)
                 });
-
-            this._handles.push(handle);
-            this._handles.push(validationHandle);
+            }
         },
 
         _inFocus: function (node, newValue) {
@@ -238,87 +225,48 @@ define([
 
         _loadData: function () {
             logger.debug(this.id + "._loadData");
-            // Set the html of the inputfield after update!
-            domHtml.set(this._inputfield, this._mxObj.get(this.attribute));
+            domHtml.set(this.inputNode, this._mxObj.get(this.attribute));
         },
 
         _createToolbar: function () {
             logger.debug(this.id + "._createToolbar");
-            //Create toolbar node.
-            this._toolbarNode = dom.create("div", {
-                "class": "btn-toolbar toolbar_" + this.id,
-                "data-role": "editor-toolbar-" + this.id,
-                "data-target": "#" + this.id + "_editor"
-            });
 
-            //Load templates
-            if (this.toolbarButtonFont) {
-                domConstruct.place(domConstruct.toDom(templateToolbarFont), this._toolbarNode);
-            }
-
-            if (this.toolbarButtonFontsize) {
-                domConstruct.place(domConstruct.toDom(templateToolbarFontSize), this._toolbarNode);
-            }
-
-            if (this.toolbarButtonEmphasis) {
-                domConstruct.place(domConstruct.toDom(templateToolbarBasic), this._toolbarNode);
-            }
-            if (this.toolbarButtonList && this.toolbarButtonDent) {
-                domConstruct.place(domConstruct.toDom(templateToolbarListAndDent), this._toolbarNode);
-            } else if (this.toolbarButtonList) {
-                domConstruct.place(domConstruct.toDom(templateToolbarList), this._toolbarNode);
-            } else if (this.toolbarButtonDent) {
-                domConstruct.place(domConstruct.toDom(templateToolbarDent), this._toolbarNode);
-            }
-
-            if (this.toolbarButtonJustify) {
-                domConstruct.place(domConstruct.toDom(templateToolbarJustify), this._toolbarNode);
-            }
+            domClass.toggle(this.btnGrpFont, "hidden", !this.toolbarButtonFont);
+            domClass.toggle(this.btnGrpFontSize, "hidden", !this.toolbarButtonFontsize);
+            domClass.toggle(this.btnGrpBasic, "hidden", !this.toolbarButtonEmphasis);
+            domClass.toggle(this.btnGrpList, "hidden", !this.toolbarButtonList);
+            domClass.toggle(this.btnGrpDent, "hidden", !this.toolbarButtonDent);
+            domClass.toggle(this.btnGrpJustify, "hidden", !this.toolbarButtonJustify);
+            domClass.toggle(this.btnGrpLink, "hidden", !this.toolbarButtonLink);
+            domClass.toggle(this.btnGrpImg, "hidden", !this.toolbarButtonPicture);
+            domClass.toggle(this.btnGrpHtml, "hidden", !this.toolbarButtonHtml);
+            domClass.toggle(this.btnGrpUnRedo, "hidden", !this.toolbarButtonDoRedo);
 
             if (this.toolbarButtonLink) {
-                var template = domConstruct.toDom(templateToolbarUrl),
-                    urlfield = domQuery("input", template)[0];
-                domConstruct.place(template, this._toolbarNode);
-
-                this.connect(urlfield, "click", function(e){
+                this.connect(this.btnGrpLink_linkField, "click", function(e){
                     var target = e.currentTarget || e.target;
                     target.focus();
                     domEvent.stop(e);
                 });
             }
-
-            if (this.toolbarButtonPicture) {
-                domConstruct.place(domConstruct.toDom(templateToolbarPicture), this._toolbarNode);
-            }
-
-            if (this.toolbarButtonHtml) {
-                domConstruct.place(domConstruct.toDom(templateToolbarHtml), this._toolbarNode);
-            }
-
-            if (this.toolbarButtonDoRedo) {
-                domConstruct.place(domConstruct.toDom(templateToolbarUnredo), this._toolbarNode);
-            }
         },
 
         _addEditor: function () {
             logger.debug(this.id + "._addEditor");
-            domConstruct.place(this._toolbarNode, this.domNode);
-            domConstruct.place(this._inputfield, this.domNode, "last");
 
             //force the MX-styles.
-            domClass.add(this._inputfield, "form-control mx-bootstrap-textarea mx-textarea-input mx-textarea-input-noresize");
-            domStyle.set(this._inputfield, {
+            domStyle.set(this.inputNode, {
                 "min-height": this.boxMinHeight + "px",
                 "max-height": this.boxMaxHeight + "px"
             });
 
-            $("#" + this.id + "_editor").wysiwyg({
-                toolbarSelector: "[data-role=editor-toolbar-" + this.id + "]"
+            $(this.inputNode).wysiwyg({
+                toolbarSelector: "#" + this._toolbarId
             });
 
             if (this._readOnly) {
-                $("#" + this.id + "_editor").attr("contenteditable", "false");
-                $(".toolbar_" + this.id).find("a").addClass("disabled");
+                $(this.inputNode).attr("contenteditable", "false");
+                $("#" + this._toolbarId).find("a").addClass("disabled");
             }
 
             this._addListeners();
@@ -329,7 +277,7 @@ define([
             var self = this,
                 target = null;
 
-            this.connect(this._inputfield, "blur", lang.hitch(this, function (e) {
+            this.connect(this.inputNode, "blur", lang.hitch(this, function (e) {
                 this._fetchContent();
             }));
 
@@ -373,16 +321,12 @@ define([
             if (mf) {
                 var params = {
                     applyto: "selection",
-                    actionname: mf,
                     guids: []
                 };
                 if (obj) {
                     params.guids = [obj.getGuid()];
                 }
-                mx.data.action({
-                    store: {
-                        caller: this.mxform
-                    },
+                mx.ui.action(mf, {
                     params: params
                 }, this);
             }
@@ -452,6 +396,20 @@ define([
         _addValidation: function(message) {
             logger.debug(this.id + "._addValidation");
             this._showError(message);
+        },
+
+        uninitialize: function () {
+            logger.debug(this.id + ".uninitialize");
+            if (this._windowClickHandler) {
+                this._windowClickHandler.remove();
+            }
+        },
+
+        _executeCallback: function (cb, from) {
+            logger.debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
+            if (cb && typeof cb === "function") {
+                cb();
+            }
         }
     });
 });

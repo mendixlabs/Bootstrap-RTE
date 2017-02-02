@@ -52,8 +52,8 @@
                 "Ctrl+r meta+r": "justifyright",
                 "Ctrl+e meta+e": "justifycenter",
                 "Ctrl+j meta+j": "justifyfull",
-                "Shift+tab": "outdent",
-                "tab": "indent"
+                //"Shift+tab": "outdent",
+                //"tab": "indent"
             },
             toolbarSelector: "[data-role=editor-toolbar]",
             commandRole: "edit",
@@ -69,7 +69,7 @@
 
         var options = $.extend(true, {}, defaults, userOptions);
         var toolbarBtnSelector = "a[data-" + options.commandRole + "],button[data-" + options.commandRole + "],input[type=button][data-" + options.commandRole + "]";
-        this.bindHotkeys(editor, options, toolbarBtnSelector);
+        //this.bindHotkeys(editor, options, toolbarBtnSelector);
 
         if (options.dragAndDropImages) {
             this.initFileDrops(editor, options, toolbarBtnSelector);

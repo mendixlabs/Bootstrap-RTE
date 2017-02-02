@@ -27,6 +27,7 @@ var pkg = require("./package.json"),
 gulp.task("default", function() {
     gulp.watch("./src/**/*", ["compress"]);
     gulp.watch("./src/**/*.js", ["copy:js"]);
+    gulp.watch("./src/**/*.html", ["copy:html"]);
 });
 
 gulp.task("clean", function () {
@@ -45,6 +46,12 @@ gulp.task("compress", ["clean"], function () {
 
 gulp.task("copy:js", function () {
     return gulp.src(["./src/**/*.js"])
+        .pipe(newer(paths.TEST_WIDGETS_DEPLOYMENT_FOLDER))
+        .pipe(gulp.dest(paths.TEST_WIDGETS_DEPLOYMENT_FOLDER));
+});
+
+gulp.task("copy:html", function () {
+    return gulp.src(["./src/**/*.html"])
         .pipe(newer(paths.TEST_WIDGETS_DEPLOYMENT_FOLDER))
         .pipe(gulp.dest(paths.TEST_WIDGETS_DEPLOYMENT_FOLDER));
 });
