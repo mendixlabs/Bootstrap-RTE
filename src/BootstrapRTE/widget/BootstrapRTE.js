@@ -301,7 +301,7 @@ define([
 
         _fetchContent: function () {
             logger.debug(this.id + "._fetchContent");
-            var text = $(this._inputfield).html(),
+            var text = $(this.inputNode).html(),
                 _valueChanged = (this._mxObj && this._mxObj.get(this.attribute) !== text);
 
             this._mxObj.set(this.attribute, text);
