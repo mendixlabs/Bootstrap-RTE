@@ -97,10 +97,14 @@ define([
                 logger.error(this.id + "Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
             }
         },
+        
+       _strReadOnly: function () {
+            return this._contextObj.isReadonlyAttr && this._contextObj.isReadonlyAttr(this.attribute);
+        },
 
         update: function (obj, callback) {
 
-            if (this.readOnly || this.get("disabled") || this.readonly) {
+            if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
                 this._readOnly = true;
             }
 
