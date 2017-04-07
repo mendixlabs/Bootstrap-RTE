@@ -278,7 +278,9 @@ define([
                 target = null;
 
             this.connect(this.inputNode, "blur", lang.hitch(this, function (e) {
-                this._fetchContent();
+                if (!this._readOnly) {
+                    this._fetchContent();
+                }
             }));
 
             //Ok, I"m just going to stick to jquery here for traversing the dom. Much easier.
