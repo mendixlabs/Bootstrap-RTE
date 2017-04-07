@@ -97,16 +97,12 @@ define([
                 logger.error(this.id + "Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
             }
         },
-        
-       _strReadOnly: function () {
+
+        _strReadOnly: function () {
             return this._contextObj.isReadonlyAttr && this._contextObj.isReadonlyAttr(this.attribute);
         },
 
         update: function (obj, callback) {
-
-            if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
-                this._readOnly = true;
-            }
 
             if (!this._setup) {
                 this._setupWidget(lang.hitch(this, this.update, obj, callback));
@@ -116,10 +112,14 @@ define([
             logger.debug(this.id + ".update");
 
             if (obj) {
-                this._mxObj = obj;
+                this._contextObj = obj;
+
+                if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
+                    this._readOnly = true;
+                }
 
                 // set the content on update
-                domHtml.set(this.inputNode, this._mxObj.get(this.attribute));
+                domHtml.set(this.inputNode, this._contextObj.get(this.attribute));
                 this._resetSubscriptions();
             } else {
                 // Sorry no data no show!
@@ -190,21 +190,21 @@ define([
 
             this.unsubscribeAll();
 
-            if (this._mxObj) {
+            if (this._contextObj) {
                 this.subscribe({
-                    guid: this._mxObj.getGuid(),
+                    guid: this._contextObj.getGuid(),
                     callback: lang.hitch(this, this._loadData)
                 });
 
                 // This doesn't work yet
                 // this.subscribe({
-                //     guid: this._mxObj.getGuid(),
+                //     guid: this._contextObj.getGuid(),
                 //     attr: this.attribute,
                 //     callback: lang.hitch(this, this._loadData)
                 // });
 
                 this.subscribe({
-                    guid: this._mxObj.getGuid(),
+                    guid: this._contextObj.getGuid(),
                     val: true,
                     callback: lang.hitch(this, this._handleValidation)
                 });
@@ -229,7 +229,7 @@ define([
 
         _loadData: function () {
             logger.debug(this.id + "._loadData");
-            domHtml.set(this.inputNode, this._mxObj.get(this.attribute));
+            domHtml.set(this.inputNode, this._contextObj.get(this.attribute));
         },
 
         _createToolbar: function () {
@@ -308,16 +308,16 @@ define([
         _fetchContent: function () {
             logger.debug(this.id + "._fetchContent");
             var text = $(this.inputNode).html(),
-                _valueChanged = (this._mxObj && this._mxObj.get(this.attribute) !== text);
+                _valueChanged = (this._contextObj && this._contextObj.get(this.attribute) !== text);
 
-            this._mxObj.set(this.attribute, text);
+            this._contextObj.set(this.attribute, text);
 
             if (_valueChanged) {
                 this._clearValidations();
             }
 
             if (_valueChanged && this.onchangeMF !== "") {
-                this._execMF(this._mxObj, this.onchangeMF);
+                this._execMF(this._contextObj, this.onchangeMF);
             }
 
         },
