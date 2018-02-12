@@ -116,6 +116,8 @@ define([
 
                 if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
                     this._readOnly = true;
+
+                    this._disableEditing();//in case the widget is already constructed
                 }
 
                 // set the content on update
@@ -127,6 +129,16 @@ define([
             }
 
             this._executeCallback(callback, "update");
+        },
+
+        _disableEditing: function() {
+          try {
+            $(this.inputNode).attr("contenteditable", "false");
+            $("#" + this._toolbarId).find("a").addClass("disabled");
+          }
+          catch ( e )  {
+            logger.debug(e);
+          }
         },
 
         _setupWidget: function (callback) {
@@ -269,8 +281,7 @@ define([
             });
 
             if (this._readOnly) {
-                $(this.inputNode).attr("contenteditable", "false");
-                $("#" + this._toolbarId).find("a").addClass("disabled");
+                this._disableEditing();
             }
 
             this._addListeners();
