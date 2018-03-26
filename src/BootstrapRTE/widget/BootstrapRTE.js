@@ -1,434 +1,394 @@
-define([
-    "dojo/_base/declare",
-    "mxui/widget/_WidgetBase",
-    "dijit/_TemplatedMixin",
+import {
+    defineWidget,
+    log,
+    runCallback,
+    executePromise,
+} from 'widget-base-helpers';
 
-    "mxui/dom",
-    "dojo/dom",
-    "dojo/query",
-    "dojo/dom-prop",
-    "dojo/dom-geometry",
-    "dojo/dom-class",
-    "dojo/dom-style",
-    "dojo/dom-attr",
-    "dojo/dom-construct",
-    "dojo/_base/array",
-    "dojo/on",
-    "dojo/_base/window",
+import jQuery from 'jquery';
 
-    "dojo/_base/lang",
-    "dojo/text",
-    "dojo/html",
-    "dojo/fx",
-    "dojo/fx/Toggler",
-    "dojo/html",
-    "dojo/_base/event",
+import './lib/jquery.hotkeys';
+import './lib/bootstrap-wysiwyg';
 
-    "BootstrapRTE/lib/jquery",
-    "dojo/text!BootstrapRTE/widget/template/BootstrapRTE.html",
+import template from './BootstrapRTE.template.html';
 
-    "BootstrapRTE/lib/bootstrap-wysiwyg",
-    "BootstrapRTE/lib/external/jquery.hotkeys"
-], function (declare, _WidgetBase, _TemplatedMixin,
-    dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domAttr, domConstruct, dojoArray, on, win,
-    lang, text, dojoHtml, coreFx, Toggler, domHtml, domEvent, _jQuery,
-    widgetTemplate
-) {
-    "use strict";
+import './BootstrapRTE.scss';
 
-    var $ = _jQuery.noConflict(true);
+import domAttr from 'dojo/dom-attr';
+import html from 'dojo/html';
+import lang from 'dojo/_base/lang';
+import domStyle from 'dojo/dom-style';
+import domClass from 'dojo/dom-class';
+import dojoArray from 'dojo/_base/array';
+import domEvent from 'dojo/_base/event';
+import coreFx from 'dojo/fx';
+import Toggler from 'dojo/fx/Toggler';
+import on from 'dojo/on';
+import { doc } from 'dojo/_base/window';
+import domQuery from 'dojo/query';
 
-    // Declare widget"s prototype.
-    return declare("BootstrapRTE.widget.BootstrapRTE", [_WidgetBase, _TemplatedMixin], {
-        // _TemplatedMixin will create our dom node using this HTML template.
-        templateString: widgetTemplate,
+import { destroy, create, place } from 'dojo/dom-construct';
 
-        // nodes
-        inputNode: null,
-        toolbarNode: null,
+const $ = jQuery.noConflict();
 
-        // Parameters configured in the Modeler.
-        attribute: "",
-        showToolbarOnlyOnFocus: false,
-        boxMinHeight: 100,
-        boxMaxHeight: 600,
-        onchangeMF: "",
-        toolbarButtonFont: true,
-        toolbarButtonFontsize: true,
-        toolbarButtonEmphasis: true,
-        toolbarButtonList: true,
-        toolbarButtonDent: true,
-        toolbarButtonJustify: true,
-        toolbarButtonLink: true,
-        toolbarButtonPicture: true,
-        toolbarButtonDoRedo: true,
-        toolbarButtonHtml: true,
+export default defineWidget('BootstrapRTE', template, {
 
-        // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
-        _handles: null,
-        _contextObj: null,
-        _readOnly: false,
-        _setup: false,
-        _windowClickHandler: null,
+    // nodes
+    inputNode: null,
+    toolbarNode: null,
 
-        _toolbarId: "toolbar_",
-        _editorId: "editor_",
+    // Parameters configured in the Modeler.
+    attribute: '',
+    showToolbarOnlyOnFocus: false,
+    boxMinHeight: 100,
+    boxMaxHeight: 600,
+    onchangeMF: '',
+    toolbarButtonFont: true,
+    toolbarButtonFontsize: true,
+    toolbarButtonEmphasis: true,
+    toolbarButtonList: true,
+    toolbarButtonDent: true,
+    toolbarButtonJustify: true,
+    toolbarButtonLink: true,
+    toolbarButtonPicture: true,
+    toolbarButtonDoRedo: true,
+    toolbarButtonHtml: true,
 
-        constructor: function () {
-            this._handles = [];
-        },
+    // Internal variables. Non-primitives created in the prototype are shared between all widget instances.
+    _handles: null,
+    _obj: null,
+    _readOnly: false,
+    _setup: false,
+    _windowClickHandler: null,
 
-        postCreate: function () {
-            logger.debug(this.id + ".postCreate");
+    _toolbarId: 'toolbar_',
+    _editorId: 'editor_',
 
-            if (this.readOnly || this.get("disabled") || this.readonly) {
+    constructor() {
+        this.log = log.bind(this);
+        this.runCallback = runCallback.bind(this);
+        this.executePromise = executePromise.bind(this);
+    },
+
+    postCreate() {
+        this.log('postCreate', this._WIDGET_VERSION);
+
+        this._readOnly = !!(this.readOnly || this.get('disabled') || this.readonly);
+
+        this._toolbarId = `toolbar_${this.id}`;
+        this._toolbarIdSelector = `#${this._toolbarId}`;
+        this._editorID = `editor_${this.id}`;
+
+        domAttr.set(this.toolbarNode, 'data-target', `#${this._editorID}`);
+        domAttr.set(this.toolbarNode, 'id', this._toolbarId);
+        domAttr.set(this.inputNode, 'id', this._editorID);
+
+        if (this.boxMaxHeight < this.boxMinHeight) {
+            console.error(this.id + ':: Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size');
+        }
+
+        if (this.addOnDestroy) {
+            this.addOnDestroy(this._onWidgetDestroy.bind(this));
+        } else {
+            this.unintialize = () => {
+                this.log('uninitialize');
+                this._onWidgetDestroy();
+            };
+        }
+    },
+
+    _strReadOnly() {
+        return this._obj.isReadonlyAttr && this._obj.isReadonlyAttr(this.attribute);
+    },
+
+    _onWidgetDestroy() {
+        this._windowClickHandler && this._windowClickHandler.remove();
+    },
+
+    update(obj, callback) {
+        if (!this._setup) {
+            this._setupWidget(lang.hitch(this, this.update, obj, callback));
+            return;
+        }
+
+        this.log('update');
+
+        if (obj) {
+            this._obj = obj;
+
+            if (this.readOnly || this.get('disabled') || this.readonly || this._strReadOnly()) {
                 this._readOnly = true;
-            }
-
-            this._toolbarId = "toolbar_" + this.id;
-            this._editorId = "editor_" + this.id;
-
-            domAttr.set(this.toolbarNode, "data-target", "#" + this._editorId);
-            domAttr.set(this.toolbarNode, "id", this._toolbarId);
-            domAttr.set(this.inputNode, "id", this._editorId);
-
-            // Check settings.
-            if (this.boxMaxHeight < this.boxMinHeight) {
-                logger.error(this.id + "Widget configuration error; Bootstrap RTE: Max size is smaller the Min Size");
-            }
-        },
-
-        _strReadOnly: function () {
-            return this._contextObj.isReadonlyAttr && this._contextObj.isReadonlyAttr(this.attribute);
-        },
-
-        update: function (obj, callback) {
-
-            if (!this._setup) {
-                this._setupWidget(lang.hitch(this, this.update, obj, callback));
-                return;
-            }
-
-            logger.debug(this.id + ".update");
-
-            if (obj) {
-                this._contextObj = obj;
-
-                if (this.readOnly || this.get("disabled") || this.readonly || this._strReadOnly()) {
-                    this._readOnly = true;
-
-                    this._disableEditing();//in case the widget is already constructed
-                }
-
-                // set the content on update
-                domHtml.set(this.inputNode, this._contextObj.get(this.attribute));
-                this._resetSubscriptions();
-            } else {
-                // Sorry no data no show!
-                logger.warn(this.id + ".update - We did not get any context object!");
-            }
-
-            this._executeCallback(callback, "update");
-        },
-
-        _disableEditing: function() {
-          try {
-            $(this.inputNode).attr("contenteditable", "false");
-            $("#" + this._toolbarId).find("a").addClass("disabled");
-          }
-          catch ( e )  {
-            logger.debug(e);
-          }
-        },
-
-        _setupWidget: function (callback) {
-            logger.debug(this.id + "._setupWidget");
-            this._setup = true;
-
-            //domAttr.remove(this.domNode, "focusindex");
-
-            this._createChildNodes();
-            this._setupEvents();
-
-            this._executeCallback(callback, "_setupWidget");
-        },
-
-        // Create child nodes.
-        _createChildNodes: function () {
-            logger.debug(this.id + "._createChildNodes");
-
-            // Created toolbar and editor.
-            this._createToolbar();
-            this._addEditor();
-        },
-
-        _setupEvents: function () {
-            logger.debug(this.id + "._setupEvents");
-
-            if (this.showToolbarOnlyOnFocus) {
-                domStyle.set(this.toolbarNode, "display", "none"); //Maybe box is first in tab order, does this need to be checked?
-
-                this._isToolbarDisplayed = false;
-
-                this._toggler = new Toggler({
-                    node: this.toolbarNode,
-                    showFunc: coreFx.wipeIn,
-                    hideFunc: coreFx.wipeOut
-                });
-
-                this.connect(this.domNode, "click", lang.hitch(this, function (event) {
-                    var inFocus = this._inFocus(this.domNode, event.target);
-                    if (inFocus && !this._isToolbarDisplayed) {
-                        this._toggler.show();
-                        this._isToolbarDisplayed = true;
-                    } else if (!inFocus && this._isToolbarDisplayed) {
-                        this._toggler.hide();
-                        this._isToolbarDisplayed = false;
-                    }
-                }));
-
-                this._windowClickHandler = on(win.doc, "click", lang.hitch(this, function (event) {
-                    var inFocus = this._inFocus(this.domNode, event.target);
-                    if (!inFocus && this._isToolbarDisplayed) {
-                        this._toggler.hide();
-                        this._isToolbarDisplayed = false;
-                    }
-                }));
-            }
-        },
-
-        _resetSubscriptions: function () {
-            logger.debug(this.id + "._resetSubscriptions");
-
-            this.unsubscribeAll();
-
-            if (this._contextObj) {
-                this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    callback: lang.hitch(this, this._loadData)
-                });
-
-                // This doesn't work yet
-                // this.subscribe({
-                //     guid: this._contextObj.getGuid(),
-                //     attr: this.attribute,
-                //     callback: lang.hitch(this, this._loadData)
-                // });
-
-                this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    val: true,
-                    callback: lang.hitch(this, this._handleValidation)
-                });
-            }
-        },
-
-        _inFocus: function (node, newValue) {
-            logger.debug(this.id + "._inFocus");
-            var nodes = null,
-                i = 0;
-            if (newValue) {
-                nodes = $(node).children().andSelf();
-                for (i = 0; i < nodes.length; i++) {
-                    if (nodes[i] === $(newValue).closest(nodes[i])[0]) {
-                        return true;
-                    }
-                }
-            } else {
-                return false;
-            }
-        },
-
-        _loadData: function () {
-            logger.debug(this.id + "._loadData");
-            domHtml.set(this.inputNode, this._contextObj.get(this.attribute));
-        },
-
-        _createToolbar: function () {
-            logger.debug(this.id + "._createToolbar");
-
-            domClass.toggle(this.btnGrpFont, "hidden", !this.toolbarButtonFont);
-            domClass.toggle(this.btnGrpFontSize, "hidden", !this.toolbarButtonFontsize);
-            domClass.toggle(this.btnGrpBasic, "hidden", !this.toolbarButtonEmphasis);
-            domClass.toggle(this.btnGrpList, "hidden", !this.toolbarButtonList);
-            domClass.toggle(this.btnGrpDent, "hidden", !this.toolbarButtonDent);
-            domClass.toggle(this.btnGrpJustify, "hidden", !this.toolbarButtonJustify);
-            domClass.toggle(this.btnGrpLink, "hidden", !this.toolbarButtonLink);
-            domClass.toggle(this.btnGrpImg, "hidden", !this.toolbarButtonPicture);
-            domClass.toggle(this.btnGrpHtml, "hidden", !this.toolbarButtonHtml);
-            domClass.toggle(this.btnGrpUnRedo, "hidden", !this.toolbarButtonDoRedo);
-
-            if (this.toolbarButtonLink) {
-                this.connect(this.btnGrpLink_linkField, "click", function(e){
-                    var target = e.currentTarget || e.target;
-                    target.focus();
-                    domEvent.stop(e);
-                });
-            }
-        },
-
-        _addEditor: function () {
-            logger.debug(this.id + "._addEditor");
-
-            //force the MX-styles.
-            domStyle.set(this.inputNode, {
-                "min-height": this.boxMinHeight + "px",
-                "max-height": this.boxMaxHeight + "px"
-            });
-
-            $(this.inputNode).wysiwyg({
-                toolbarSelector: "#" + this._toolbarId
-            });
-
-            if (this._readOnly) {
                 this._disableEditing();
             }
 
-            this._addListeners();
-        },
+            html.set(this.inputNode, this._obj.get(this.attribute));
+            this._resetSubscriptions();
 
-        _addListeners: function () {
-            logger.debug(this.id + "._addListeners");
-            var self = this,
-                target = null;
+        } else {
+            window.logger.warn(`${this.id}.update :: No context object`);
+        }
 
-            this.connect(this.inputNode, "blur", lang.hitch(this, function (e) {
-                if (!this._readOnly) {
-                    this._fetchContent();
-                }
-            }));
+        this.runCallback(callback, 'update');
+    },
 
-            //Ok, I"m just going to stick to jquery here for traversing the dom. Much easier.
-            $("#" + this.id + " .dropdown-toggle").on("click", function (e) {
-                $(this).parent().find("div").toggle();
-                $(this).parent().find("ul").toggle();
-                $(this).parent().find("input").focus();
+    _disableEditing() {
+        try {
+            domAttr.set(this.inputNode, 'contenteditable', 'false');
+            $('#' + this._toolbarId).find('a').addClass('disabled');
+        } catch (error) {
+            window.logger.debug(error);
+        }
+    },
+
+    _setupWidget(callback) {
+        this.log('_setupWidget');
+        this._setup = true;
+
+        this._createChildNodes();
+        this._setupEvents();
+
+        this.runCallback(callback, '_setupWidget');
+    },
+
+    _createChildNodes() {
+        this.log('_createChildNodes');
+
+        this._createToolbar();
+        this._addEditor();
+    },
+
+    _setupEvents() {
+        this.log('_setupEvents');
+
+        if (this.showToolbarOnlyOnFocus) {
+            domStyle.set(this.toolbarNode, 'display', 'none'); //Maybe box is first in tab order, does this need to be checked?
+
+            this._isToolbarDisplayed = false;
+
+            this._toggler = new Toggler({
+                node: this.toolbarNode,
+                showFunc: coreFx.wipeIn,
+                hideFunc: coreFx.wipeOut,
             });
 
-            //Check if we have to hide the dropdown box.
-            this.connect(this.domNode, "click", function (e) {
-                var isContainer = self._testTarget(e);
-                if (!isContainer) {
-                    domQuery("#" + this.id + " .dropdown-menu").style({
-                        "display": "none"
-                    });
-                }
-            });
-        },
-
-        _fetchContent: function () {
-            logger.debug(this.id + "._fetchContent");
-            var text = $(this.inputNode).html(),
-                _valueChanged = (this._contextObj && this._contextObj.get(this.attribute) !== text);
-
-            this._contextObj.set(this.attribute, text);
-
-            if (_valueChanged) {
-                this._clearValidations();
-            }
-
-            if (_valueChanged && this.onchangeMF !== "") {
-                this._execMF(this._contextObj, this.onchangeMF);
-            }
-
-        },
-
-        _execMF: function (obj, mf) {
-            logger.debug(this.id + "._execMF", mf);
-            if (mf) {
-                var params = {
-                    applyto: "selection",
-                    guids: []
-                };
-                if (obj) {
-                    params.guids = [obj.getGuid()];
-                }
-                mx.ui.action(mf, {
-                    params: params
-                }, this);
-            }
-        },
-
-        _testTarget: function (e) {
-            logger.debug(this.id + "._testTarget");
-            //See if we clicked the same button
-            var isButton = false,
-                isContainer = {},
-                value = {};
-
-            dojoArray.forEach(domQuery("#" + this.id + " .dropdown-toggle"), function (object, index) {
-                if (!isButton) {
-                    isButton = $(e.target).parent()[0] === object || $(e.target) === object;
+            this.connect(this.domNode, 'click', clickEvt => {
+                const inFocus = this._inFocus(this.domNode, clickEvt.target);
+                if (inFocus && !this._isToolbarDisplayed) {
+                    this._toggler.show();
+                    this._isToolbarDisplayed = true;
+                } else if (!inFocus && this._isToolbarDisplayed) {
+                    this._toggler.hide();
+                    this._isToolbarDisplayed = false;
                 }
             });
 
-            //See if we clicked inside the box
-            isContainer = $(e.target).closest("ul").children(".dropdown-toggle").length > 0 ||
-                $(e.target).children(".dropdown-toggle").length > 0 ||
-                $(e.target).parent().children(".dropdown-toggle").length > 0;
-
-            value = isContainer;
-            if (isButton === true) {
-                value = isButton;
-            }
-
-            return value;
-        },
-
-        _handleValidation: function(validations) {
-            logger.debug(this.id + "._handleValidation");
-            this._clearValidations();
-
-            var validation = validations[0],
-                message = validation.getReasonByAttribute(this.attribute);
-
-            if (message) {
-                this._addValidation(message);
-                validation.removeAttribute(this.attribute);
-            }
-        },
-
-        _clearValidations: function() {
-            logger.debug(this.id + "._clearValidations");
-            domClass.toggle(this.domNode, "has-error", false);
-            domConstruct.destroy(this._alertDiv);
-            this._alertDiv = null;
-        },
-
-        _showError: function(message) {
-            logger.debug(this.id + "._showError");
-            if (this._alertDiv !== null) {
-                dojoHtml.set(this._alertDiv, message);
-                return true;
-            }
-            this._alertDiv = domConstruct.create("div", {
-                "class": "alert alert-danger",
-                "innerHTML": message
+            this._windowClickHandler = on(doc, 'click', clickEvt => {
+                const inFocus = this._inFocus(this.domNode, clickEvt.target);
+                if (!inFocus && this._isToolbarDisplayed) {
+                    this._toggler.hide();
+                    this._isToolbarDisplayed = false;
+                }
             });
-            domConstruct.place(this._alertDiv, this.domNode);
-            domClass.toggle(this.domNode, "has-error", true);
-        },
+        }
+    },
 
-        // Add a validation.
-        _addValidation: function(message) {
-            logger.debug(this.id + "._addValidation");
-            this._showError(message);
-        },
+    _resetSubscriptions() {
+        this.log('_resetSubscriptions');
 
-        uninitialize: function () {
-            logger.debug(this.id + ".uninitialize");
-            if (this._windowClickHandler) {
-                this._windowClickHandler.remove();
-            }
-        },
+        this.unsubscribeAll();
 
-        _executeCallback: function (cb, from) {
-            logger.debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
-            if (cb && typeof cb === "function") {
-                cb();
+        if (this._obj) {
+            this.subscribe({
+                guid: this._obj.getGuid(),
+                callback: this._loadData.bind(this),
+            });
+
+            this.subscribe({
+                guid: this._obj.getGuid(),
+                val: true,
+                callback: this._handleValidation.bind(this),
+            });
+        }
+
+    },
+
+    _inFocus(node, newVal) {
+        this.log('_inFocus');
+        if (newVal) {
+            const nodes = $(node).children().addBack();
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[ i ] === $(newVal).closest(nodes[ i ])[ 0 ]) {
+                    return true;
+                }
             }
         }
-    });
-});
+        return false;
+    },
 
-require(["BootstrapRTE/widget/BootstrapRTE"]);
+    _loadData() {
+        this.log('_loadData');
+
+        html.set(this.inputNode, this._obj.get(this.attribute));
+    },
+
+    _createToolbar() {
+        this.log('_createToolbar');
+
+        domClass.toggle(this.btnGrpFont, 'hidden', !this.toolbarButtonFont);
+        domClass.toggle(this.btnGrpFontSize, 'hidden', !this.toolbarButtonFontsize);
+        domClass.toggle(this.btnGrpBasic, 'hidden', !this.toolbarButtonEmphasis);
+        domClass.toggle(this.btnGrpList, 'hidden', !this.toolbarButtonList);
+        domClass.toggle(this.btnGrpDent, 'hidden', !this.toolbarButtonDent);
+        domClass.toggle(this.btnGrpJustify, 'hidden', !this.toolbarButtonJustify);
+        domClass.toggle(this.btnGrpLink, 'hidden', !this.toolbarButtonLink);
+        domClass.toggle(this.btnGrpImg, 'hidden', !this.toolbarButtonPicture);
+        domClass.toggle(this.btnGrpHtml, 'hidden', !this.toolbarButtonHtml);
+        domClass.toggle(this.btnGrpUnRedo, 'hidden', !this.toolbarButtonDoRedo);
+
+        if (this.toolbarButtonLink) {
+            this.connect(this.btnGrpLink_linkField, 'click', e => {
+                const target = e.currentTarget || e.target;
+                target.focus();
+                domEvent.stop(e);
+            });
+        }
+    },
+
+    _addEditor() {
+        this.log('_addEditor');
+
+        //force the MX-styles.
+        domStyle.set(this.inputNode, {
+            'min-height': this.boxMinHeight + 'px',
+            'max-height': this.boxMaxHeight + 'px',
+        });
+
+        $(this.inputNode).wysiwyg({
+            toolbarSelector: '#' + this._toolbarId,
+        });
+
+        if (this._readOnly) {
+            this._disableEditing();
+        }
+
+        this._addListeners();
+    },
+
+    _addListeners() {
+        this.log('_addListeners');
+
+        this.connect(this.inputNode, 'blur', () => {
+            if (!this._readOnly) {
+                this._fetchContent();
+            }
+        });
+
+        //Ok, I'm just going to stick to jquery here for traversing the dom. Much easier.
+        $(`#${this.id} *[data-toggle="dropdown"]`).on('click', e => {
+            const target = $(e.currentTarget);
+            target.parent().find('div').toggle();
+            target.parent().find('ul').toggle();
+            target.parent().find('input').focus();
+        });
+
+        //Check if we have to hide the dropdown box.
+        this.connect(this.domNode, 'click', e => {
+            const isContainer = this._testTarget(e);
+            if (!isContainer) {
+                domQuery('#' + this.id + ' .dropdown-menu').style({
+                    'display': 'none',
+                });
+            }
+        });
+    },
+
+    _fetchContent() {
+        this.log('_fetchContent');
+
+        const text = $(this.inputNode).html();
+        const _valueChanged = this._obj && this._obj.get(this.attribute) !== text;
+
+        this._obj.set(this.attribute, text);
+
+        if (_valueChanged) {
+            this._clearValidations();
+        }
+
+        if (_valueChanged && '' !== this.onchangeMF) {
+            this.executePromise(this.onchangeMF, this._obj ? this._obj.getGuid() : null);
+        }
+
+    },
+
+    _testTarget(e) {
+        this.log('_testTarget');
+
+        //See if we clicked the same button
+        let isButton = false,
+            value = {};
+
+        dojoArray.forEach(domQuery('#' + this.id + ' .dropdown-link'), object => {
+            if (!isButton) {
+                isButton = $(e.target).parent()[ 0 ] === object || $(e.target) === object;
+            }
+        });
+
+        //See if we clicked inside the box
+        const isContainer = 0 < $(e.target).closest('ul').children('.dropdown-link').length ||
+            0 < $(e.target).children('.dropdown-link').length ||
+            0 < $(e.target).parent().children('.dropdown-link').length;
+
+        value = isContainer;
+
+        if (isButton) {
+            value = isButton;
+        }
+
+        return value;
+    },
+
+    _handleValidation(validations) {
+        this.log('_handleValidation');
+
+        this._clearValidations();
+
+        const validation = validations[ 0 ];
+        const message = validation.getReasonByAttribute(this.attribute);
+
+        if (message) {
+            this._addValidation(message);
+            validation.removeAttribute(this.attribute);
+        }
+    },
+
+    _clearValidations() {
+        this.log('_clearValidations');
+
+        domClass.toggle(this.domNode, 'has-error', false);
+        destroy(this._alertDiv);
+        this._alertDiv = null;
+    },
+
+    _showError(message) {
+        this.log('_showError');
+
+        if (null !== this._alertDiv) {
+            html.set(this._alertDiv, message);
+            return;
+        }
+
+        this._alertDiv = create('div', {
+            'class': 'alert alert-danger',
+            'innerHTML': message,
+        });
+
+        place(this._alertDiv, this.domNode);
+        domClass.toggle(this.domNode, 'has-error', true);
+    },
+
+    _addValidation(message) {
+        this.log('_addValidation');
+
+        this._showError(message);
+    },
+});
