@@ -1,7 +1,7 @@
 <div class="bootstraprte">
     <div data-dojo-attach-point="toolbarNode" id="toolbar_" class="btn-toolbar" data-role="editor-toolbar" tabindex="-1">
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpFont">
-            <a class="btn dropdown-toggle" title="" data-toggle="dropdown"><i class="icon-font"></i><b class="caret"></b></a>
+            <a class="btn dropdown-toggle dropdown-link" title="" data-toggle="dropdown"><i class="icon-font"></i><b class="caret"></b></a>
             <ul class="dropdown-menu">
                 <li><a data-edit="fontName Arial" style="font-family: Arial;">Arial</a></li>
                 <li><a data-edit="fontName Courier" style="font-family: Courier;">Courier</a></li>
@@ -12,12 +12,12 @@
             </ul>
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpFontSize">
-            <a title="" data-toggle="dropdown" class="btn dropdown-toggle" data-original-title="Font Size"><i class="icon-text-height"></i>&nbsp;<b class="caret"></b></a>
+            <a title="" data-toggle="dropdown" class="btn dropdown-toggle dropdown-link" data-original-title="Font Size"><i class="icon-text-height"></i>&nbsp;<b class="caret"></b></a>
             <ul class="dropdown-menu">
-                <li><a data-edit="formatBlock h1"><h1>Header 1</h1></a></li>
-                <li><a data-edit="formatBlock h2"><h2>Header 2</h2></a></li>
-                <li><a data-edit="formatBlock h3"><h3>Header 3</h3></a></li>
-                <li><a data-edit="formatBlock p"><p>Normal</p></a></li>
+                <li><a data-edit="formatBlock <h1>"><h1>Header 1</h1></a></li>
+                <li><a data-edit="formatBlock <h2>"><h2>Header 2</h2></a></li>
+                <li><a data-edit="formatBlock <h3>"><h3>Header 3</h3></a></li>
+                <li><a data-edit="formatBlock <p>"><p>Normal</p></a></li>
             </ul>
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpBasic">
@@ -43,7 +43,7 @@
             <a title="" data-edit="justifyfull" class="btn" data-original-title="Justify (Ctrl/Cmd+J)"><i class="icon-align-justify"></i></a>
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpLink">
-            <a title="" data-toggle="dropdown" class="btn dropdown-toggle" data-original-title="Hyperlink"><i class="icon-link"></i></a>
+            <a title="" data-toggle="dropdown" class="btn dropdown-link" data-original-title="Hyperlink"><i class="icon-link"></i></a>
             <div class="dropdown-menu input-append">
                 <input type="text" data-edit="createLink" placeholder="URL" class="span2" data-dojo-attach-point="btnGrpLink_linkField">
                 <button type="button" class="btn">Add</button>
@@ -51,11 +51,11 @@
             <a title="" data-edit="unlink" class="btn" data-original-title="Remove Hyperlink"><i class="icon-cut"></i></a>
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpImg">
-            <a id="pictureBtn" title="" class="btn" data-original-title="Insert picture (or just drag &amp; drop)"><i class="icon-picture"></i></a>
-            <input type="file" data-edit="insertImage" data-target="#pictureBtn" data-role="magic-overlay" style="opacity: 0; position: absolute; top: 0.199997px; left: -0.0000366211px; width: 39px; height: 30px;">
+            <a id="pictureBtn" title="" class="btn btn-normal" data-original-title="Insert picture (or just drag &amp; drop)"><i class="icon-picture"></i></a>
+            <input type="file" data-edit="insertImage" data-target="#pictureBtn" data-role="magic-overlay" style="opacity: 0; position: absolute; top: 0.199997px; left: -0.0000366211px; width: 46px; height: 35px;">
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpHtml">
-            <a class="btn btn-default" data-edit="removeFormat" title="Clear Formatting"><i class='glyphicon glyphicon-pencil'></i></a>
+            <a class="btn btn-default" data-edit="removeFormat" title="Clear Formatting"><i class='icon-eraser'></i></a>
         </div>
         <div class="btn-group hidden" data-dojo-attach-point="btnGrpUnRedo">
             <a title="" data-edit="undo" class="btn" data-original-title="Undo (Ctrl/Cmd+Z)"><i class="icon-undo"></i></a>
