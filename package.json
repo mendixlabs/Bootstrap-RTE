@@ -69,7 +69,7 @@
     "xml-webpack-plugin": "^0.0.2"
   },
   "dependencies": {
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.1",
     "widget-base-helpers": "latest"
   }
 }
