@@ -1,3 +1,5 @@
+[![Support](https://img.shields.io/badge/Mendix%20Support%3A-Community-green.svg)](https://docs.mendix.com/appstore/general/app-store-content-support#community-category)
+
 Basic Bootstrap Wysiwyg Editor
 =============
 
